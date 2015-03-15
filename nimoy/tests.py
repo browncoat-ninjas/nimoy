@@ -1,13 +1,17 @@
 import unittest
-from nimoy.feature import Feature, Then
+import inspect
+from pprint import pprint
+from nimoy import feature
+
+from nimoy.feature import Feature, Expectations
+from nimoy.helpers import RecursivePrintVisitor
 from nimoy.spec import Specification
 
 __author__ = 'luftzug'
 
 
 class SpecTesting(unittest.TestCase):
-
-    def a_spec_should_gather_features(self):
+    def test_a_spec_should_gather_features(self):
         class Spec(Specification):
             def method1(self):
                 pass
@@ -24,15 +28,18 @@ class SpecTesting(unittest.TestCase):
         assert return_value
 
 
-class ThenBlockTransforming():
+class CodeTransformationTests(unittest.TestCase):
 
-    def exploration_test(self):
-        outer_var = ''
-        then_manager = Then()
-        def method_with_then():
-            outer_var = 'outer'
-            with then_manager:
-                'out' in outer_var
-                True
-                1 > 2
-        method_with_then()
+    def test_exploration(self):
+        class SpecForTesting(Specification):
+            @Feature('test with expectations')
+            def sample_test(self):
+                localvar = 'local'
+                with Expectations():
+                    localvar = 'assignment'
+                    'ass' in localvar  # Should assert
+
+        for name, feature in SpecForTesting.features.items():
+            print('Running feature %s' % name)
+            feature()
+

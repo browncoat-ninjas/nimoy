@@ -1,3 +1,7 @@
+import ast
+import inspect
+from pprint import pprint
+
 __author__ = 'luftzug'
 
 
@@ -18,4 +22,6 @@ class SpecMetaClass(type):
 
 
 class Specification(object, metaclass=SpecMetaClass):
-    pass
+
+    def __new__(cls, *args, **kwargs):
+        pprint("In Specification.__new__:\n%s" % cls)
