@@ -1,15 +1,13 @@
+import os
 import tempfile
 import unittest
-import os
+
 from nimoy.runner.spec_finder import SpecFinder
 
 
 class TestSpecFinder(unittest.TestCase):
     def setUp(self):
         self.temp_spec = tempfile.NamedTemporaryFile(suffix='_spec.py')
-
-    def tearDown(self):
-        os.remove(self.temp_spec.name)
 
     def test_implicit_location(self):
         spec_locations = SpecFinder(os.path.dirname(self.temp_spec.name)).find([])
