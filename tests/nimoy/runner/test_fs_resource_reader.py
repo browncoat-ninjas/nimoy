@@ -10,7 +10,7 @@ class TestFsResourceReader(unittest.TestCase):
         with open(self.temp_file.name, 'w') as f:
             f.write('jimbob')
         text = fs_resource_reader.read(self.temp_file.name)
-        self.assertEquals(text, 'jimbob')
+        self.assertEqual(text, 'jimbob')
 
     def test_read_non_existing_file(self):
         with self.assertRaises(FileNotFoundError) as context:
