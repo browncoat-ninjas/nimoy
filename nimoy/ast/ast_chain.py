@@ -1,0 +1,2 @@
+def apply(node):
+    pass
