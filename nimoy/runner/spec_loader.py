@@ -8,17 +8,21 @@ class SpecLoader:
         self.resource_reader = resource_reader
 
     def load(self, spec_locations):
-        spec_metadata = {}
+        specs = []
 
-        for spec_location in spec_locations:
-            text = self.resource_reader.read(spec_location)
+        for spec_file_location in spec_locations:
+            text = self.resource_reader.read(spec_file_location)
             node = ast.parse(text, mode='exec')
 
-            metadata = self.ast_chain.apply(node)
+            metadata_of_specs_from_node = self.ast_chain.apply(node)
             ast.fix_missing_locations(node)
-            compiled = compile(node, spec_location, mode='exec')
-            exec(compiled)
+            compiled = compile(node, spec_file_location, 'exec')
 
-            spec_metadata[metadata.get('class_name')] = metadata
+            spec_namespace = {}
+            exec(compiled, spec_namespace)
 
-        return spec_metadata
+            for spec_metadata in metadata_of_specs_from_node:
+                spec_metadata.module = spec_namespace[spec_metadata.name]
+                specs.append(spec_metadata)
+
+        return specs
