@@ -1,6 +1,7 @@
 import unittest
 from unittest import mock
 from nimoy.runner.spec_loader import SpecLoader
+from nimoy.ast_tools.ast_metadata import SpecMetadata
 
 
 class TestSpecLoader(unittest.TestCase):
@@ -9,16 +10,14 @@ class TestSpecLoader(unittest.TestCase):
         reader_mock.read.return_value = 'class Jimbob:\n    pass'
 
         ast_chain = mock.Mock()
-        metadata = mock.Mock()
-        metadata.name = 'Jimbob'
-        metadata.key = 'value'
+
+        metadata = SpecMetadata('Jimbob')
         ast_chain.apply.return_value = [metadata]
 
         returned_spec_metadata = SpecLoader(reader_mock, ast_chain).load(['/path/to/spec.py'])
 
         self.assertEqual(returned_spec_metadata[0].name, 'Jimbob')
-        self.assertEqual(returned_spec_metadata[0].key, 'value')
-        self.assertTrue(returned_spec_metadata[0].module)
+        self.assertTrue(returned_spec_metadata[0].owning_module)
 
         reader_mock.read.assert_called_once_with('/path/to/spec.py')
         ast_chain.apply.assert_called_once()

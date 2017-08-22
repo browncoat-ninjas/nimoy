@@ -22,7 +22,7 @@ class SpecLoader:
             exec(compiled, spec_namespace)
 
             for spec_metadata in metadata_of_specs_from_node:
-                spec_metadata.module = spec_namespace[spec_metadata.name]
+                spec_metadata.set_owning_module(spec_namespace[spec_metadata.name])
                 specs.append(spec_metadata)
 
         return specs
