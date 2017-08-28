@@ -9,5 +9,8 @@ class SpecTransformer(ast.NodeTransformer):
 
     def visit_ClassDef(self, class_node):
         if class_node.name.endswith('Spec'):
-            self.spec_metadata.append(SpecMetadata(class_node.name))
+            self._register_spec(class_node)
         return class_node
+
+    def _register_spec(self, class_node):
+        self.spec_metadata.append(SpecMetadata(class_node.name))
