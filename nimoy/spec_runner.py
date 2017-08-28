@@ -5,7 +5,7 @@ from nimoy.runner.spec_loader import SpecLoader
 from nimoy.runner.spec_executor import SpecExecutor
 from nimoy.runner import unittest_execution_framework
 from nimoy.runner import fs_resource_reader
-from nimoy.ast import ast_chain
+from nimoy.ast_tools import ast_chain
 
 
 class SpecRunner:

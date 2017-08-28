@@ -1,2 +1,0 @@
-def apply(node):
-    pass
