@@ -16,7 +16,7 @@ class TestSpecExecutor(unittest.TestCase):
         spec_method_stub = {}
         module_mock = mock.Mock(return_value=spec_method_stub)
 
-        spec_mock.module = module_mock
+        spec_mock.owning_module = module_mock
         spec_mock.methods = ['spec_method']
 
         SpecExecutor(execution_framework_mock).execute([spec_mock])
