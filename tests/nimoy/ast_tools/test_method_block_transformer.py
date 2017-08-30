@@ -31,5 +31,5 @@ class JimbobSpec(Specification):
 
         block_types = ['setup', 'given', 'when', 'then', 'expect']
         for index, block_type in enumerate(block_types):
-            self.assertEqual(spec_method_body[index].items[0].context_expr.func.attr, '__method_block_context')
+            self.assertEqual(spec_method_body[index].items[0].context_expr.func.attr, '_method_block_context')
             self.assertEqual(spec_method_body[index].items[0].context_expr.args[0].s, block_type)

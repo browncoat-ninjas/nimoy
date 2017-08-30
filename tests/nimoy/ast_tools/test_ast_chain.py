@@ -5,7 +5,8 @@ from nimoy.ast_tools import ast_chain
 
 class TestAstChain(unittest.TestCase):
     @mock.patch('nimoy.ast_tools.ast_chain.SpecTransformer')
-    def test_apply(self, spec_transformer_mock):
+    @mock.patch('nimoy.ast_tools.ast_chain.MethodBlockTransformer')
+    def test_apply(self, spec_transformer_mock, method_block_transformer):
         node = {}
 
         spec_metadata = ast_chain.apply(node)
@@ -13,3 +14,6 @@ class TestAstChain(unittest.TestCase):
 
         spec_transformer_mock.assert_called_once()
         spec_transformer_mock.return_value.visit.assert_called_once_with(node)
+
+        method_block_transformer.assert_called_once()
+        method_block_transformer.return_value.visit.assert_called_once_with(node)

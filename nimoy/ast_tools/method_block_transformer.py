@@ -30,5 +30,5 @@ class MethodBlockTransformer(ast.NodeTransformer):
     def _replace_with_block_context(with_node):
         block_type = with_node.items[0].context_expr.id
         with_node.items[0].context_expr = _ast.Call(
-            func=_ast.Attribute(value=_ast.Name(id='self', ctx=_ast.Load()), attr='__method_block_context',
+            func=_ast.Attribute(value=_ast.Name(id='self', ctx=_ast.Load()), attr='_method_block_context',
                                 ctx=_ast.Load()), args=[_ast.Str(s=block_type)], keywords=[])
