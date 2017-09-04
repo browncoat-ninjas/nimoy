@@ -9,7 +9,7 @@ class SpecFinder:
         self.spec_locations = []
 
     def find(self, suggested_locations):
-        if len(suggested_locations) == 0:
+        if not suggested_locations:
             suggested_locations.append(self.working_directory)
         self._find_specs_in_suggested_locations(suggested_locations)
 

@@ -6,5 +6,5 @@ class MethodBlock:
     def __enter__(self):
         pass
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, the_type, value, traceback):
         pass
