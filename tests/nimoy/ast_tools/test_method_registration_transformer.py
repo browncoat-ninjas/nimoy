@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 import ast
 from nimoy.ast_tools.method_registration_transformer import MethodRegistrationTransformer
 from nimoy.ast_tools.ast_metadata import SpecMetadata
@@ -6,7 +7,8 @@ from nimoy.ast_tools.ast_metadata import SpecMetadata
 
 class MethodRegistrationTransformerTest(unittest.TestCase):
 
-    def test_that_function_was_added(self):
+    @mock.patch('nimoy.ast_tools.method_registration_transformer.MethodBlockTransformer')
+    def test_that_function_was_added(self, method_block_transformer):
         module_definition = 'class JSpec:\n    def test_jim(self):\n        pass\n    def _jim(self):\n        pass\n\n'
         node = ast.parse(module_definition, mode='exec')
 
@@ -15,3 +17,5 @@ class MethodRegistrationTransformerTest(unittest.TestCase):
         self.assertEqual(len(metadata.methods), 1)
         self.assertEqual(metadata.methods[0], 'test_jim')
 
+        method_block_transformer.assert_called_once_with(metadata, 'test_jim')
+        method_block_transformer.return_value.visit.assert_called_once_with(node.body[0].body[0])

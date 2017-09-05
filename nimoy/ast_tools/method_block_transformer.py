@@ -8,11 +8,17 @@ BLOCK_NAMES = ['setup', 'given', 'when', THEN, EXPECT]
 
 
 class MethodBlockTransformer(ast.NodeTransformer):
+    def __init__(self, spec_metadata, method_name) -> None:
+        super().__init__()
+        self.spec_metadata = spec_metadata
+        self.method_name = method_name
+
     def visit_With(self, with_node):
 
         if MethodBlockTransformer._is_method_block(with_node):
             block_type = with_node.items[0].context_expr.id
             MethodBlockTransformer._replace_with_block_context(with_node, block_type)
+            self.spec_metadata.add_method_block(self.method_name, block_type)
 
             if block_type in [THEN, EXPECT]:
                 ComparisonExpressionTransformer().visit(with_node)

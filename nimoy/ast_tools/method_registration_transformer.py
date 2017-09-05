@@ -1,4 +1,5 @@
 import ast
+from nimoy.ast_tools.method_block_transformer import MethodBlockTransformer
 
 
 class MethodRegistrationTransformer(ast.NodeVisitor):
@@ -7,5 +8,7 @@ class MethodRegistrationTransformer(ast.NodeVisitor):
         self.spec_metadata = spec_metadata
 
     def visit_FunctionDef(self, function_node):
-        if not function_node.name.startswith('_'):
-            self.spec_metadata.add_test_method(function_node.name)
+        method_name = function_node.name
+        if not method_name.startswith('_'):
+            self.spec_metadata.add_test_method(method_name)
+            MethodBlockTransformer(self.spec_metadata, method_name).visit(function_node)

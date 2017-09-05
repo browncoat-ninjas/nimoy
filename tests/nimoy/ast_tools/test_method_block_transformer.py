@@ -2,6 +2,7 @@ import unittest
 import ast
 from unittest import mock
 from nimoy.ast_tools.method_block_transformer import MethodBlockTransformer
+from nimoy.ast_tools.ast_metadata import SpecMetadata
 
 
 class MethodBlockTransformerTest(unittest.TestCase):
@@ -27,7 +28,10 @@ class JimbobSpec(Specification):
         """
         node = ast.parse(module_definition, mode='exec')
 
-        MethodBlockTransformer().visit(node)
+        spec_metadata = SpecMetadata('spec_name')
+        spec_metadata.set_owning_module('JimbobSpec')
+        spec_metadata.add_test_method('test_it')
+        MethodBlockTransformer(spec_metadata, 'test_it').visit(node)
 
         spec_method_body = node.body[1].body[0].body
 
@@ -38,3 +42,4 @@ class JimbobSpec(Specification):
 
         self.assertEqual(comparison_expression_transformer.call_count, 2)
         self.assertEqual(comparison_expression_transformer.return_value.visit.call_count, 2)
+        self.assertEqual(spec_metadata.method_blocks['test_it'], block_types)
