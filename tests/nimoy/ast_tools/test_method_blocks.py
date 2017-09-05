@@ -1,12 +1,12 @@
 import unittest
 import ast
 from unittest import mock
-from nimoy.ast_tools.method_block_transformer import MethodBlockTransformer
+from nimoy.ast_tools.method_blocks import MethodBlockTransformer
 from nimoy.ast_tools.ast_metadata import SpecMetadata
 
 
 class MethodBlockTransformerTest(unittest.TestCase):
-    @mock.patch('nimoy.ast_tools.method_block_transformer.ComparisonExpressionTransformer')
+    @mock.patch('nimoy.ast_tools.method_blocks.ComparisonExpressionTransformer')
     def test_that_function_was_added(self, comparison_expression_transformer):
         module_definition = """from nimoy.specification import Specification
 class JimbobSpec(Specification):
@@ -25,6 +25,9 @@ class JimbobSpec(Specification):
 
         with expect:
             pass
+
+        with where:
+            pass
         """
         node = ast.parse(module_definition, mode='exec')
 
@@ -35,7 +38,7 @@ class JimbobSpec(Specification):
 
         spec_method_body = node.body[1].body[0].body
 
-        block_types = ['setup', 'given', 'when', 'then', 'expect']
+        block_types = ['setup', 'given', 'when', 'then', 'expect', 'where']
         for index, block_type in enumerate(block_types):
             self.assertEqual(spec_method_body[index].items[0].context_expr.func.attr, '_method_block_context')
             self.assertEqual(spec_method_body[index].items[0].context_expr.args[0].s, block_type)

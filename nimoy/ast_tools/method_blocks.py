@@ -4,7 +4,7 @@ from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransform
 
 THEN = 'then'
 EXPECT = 'expect'
-BLOCK_NAMES = ['setup', 'given', 'when', THEN, EXPECT]
+BLOCK_NAMES = ['setup', 'given', 'when', THEN, EXPECT, 'where']
 
 
 class MethodBlockTransformer(ast.NodeTransformer):

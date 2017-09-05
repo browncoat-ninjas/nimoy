@@ -1,5 +1,5 @@
 import ast
-from nimoy.ast_tools.method_block_transformer import MethodBlockTransformer
+from nimoy.ast_tools.method_blocks import MethodBlockTransformer
 
 
 class MethodRegistrationTransformer(ast.NodeVisitor):
