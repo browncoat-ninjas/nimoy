@@ -10,4 +10,4 @@ def append_test(suite, test):
 
 
 def run(suite):
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    return unittest.TextTestRunner(verbosity=2).run(suite)

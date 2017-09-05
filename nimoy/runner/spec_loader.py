@@ -2,16 +2,14 @@ import ast
 
 
 class SpecLoader:
-    def __init__(self, resource_reader, ast_chain) -> None:
+    def __init__(self, ast_chain) -> None:
         super().__init__()
         self.ast_chain = ast_chain
-        self.resource_reader = resource_reader
 
-    def load(self, spec_locations):
+    def load(self, spec_contents):
         specs = []
 
-        for spec_file_location in spec_locations:
-            text = self.resource_reader.read(spec_file_location)
+        for spec_file_location, text in spec_contents:
             node = ast.parse(text, mode='exec')
 
             metadata_of_specs_from_node = self.ast_chain.apply(node)

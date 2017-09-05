@@ -12,4 +12,4 @@ class SpecExecutor:
             for spec_method in spec_metadata.methods:
                 self.execution_framework.append_test(suite, spec_class_module(spec_method))
 
-        self.execution_framework.run(suite)
+        return self.execution_framework.run(suite)
