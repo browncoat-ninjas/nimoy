@@ -1,10 +1,61 @@
 import ast
 import _ast
 from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer
+from nimoy.runner.exceptions import InvalidMethodBlockException
 
+SETUP = 'setup'
+GIVEN = 'given'
+WHEN = 'when'
 THEN = 'then'
 EXPECT = 'expect'
-BLOCK_NAMES = ['setup', 'given', 'when', THEN, EXPECT, 'where']
+WHERE = 'where'
+BLOCK_NAMES = [SETUP, GIVEN, WHEN, THEN, EXPECT, WHERE]
+
+
+class MethodBlockRuleEnforcer:
+    def __init__(self, spec_metadata, method_name, block_ast_node) -> None:
+        super().__init__()
+        self.spec_metadata = spec_metadata
+        self.method_name = method_name
+        self.block_ast_node = block_ast_node
+
+    def enforce_addition_rules(self, block_type):
+        existing_blocks = self.spec_metadata.method_blocks.get(self.method_name)
+
+        if block_type in [SETUP, GIVEN]:
+            if existing_blocks:
+                if any([(existing_block in [SETUP, GIVEN]) for existing_block in existing_blocks]):
+                    raise InvalidMethodBlockException(self.spec_metadata, self.method_name, self.block_ast_node,
+                                                      'Each feature method may only have a single setup/given block')
+
+                raise InvalidMethodBlockException(self.spec_metadata, self.method_name, self.block_ast_node,
+                                                  'setup/given blocks may only appear at the start of the feature')
+
+        if block_type == THEN:
+            if (existing_blocks and existing_blocks[-1] != WHEN) or not existing_blocks:
+                raise InvalidMethodBlockException(self.spec_metadata, self.method_name, self.block_ast_node,
+                                                  'when blocks may only succeed then blocks')
+
+        if block_type != THEN:
+            if existing_blocks:
+                if existing_blocks[-1] == WHEN:
+                    raise InvalidMethodBlockException(self.spec_metadata, self.method_name, self.block_ast_node,
+                                                      'when blocks may be succeeded only by then blocks')
+
+        if existing_blocks:
+            if existing_blocks[-1] == WHERE:
+                raise InvalidMethodBlockException(self.spec_metadata, self.method_name, self.block_ast_node,
+                                                  'No blocks may succeeded where blocks')
+
+    def enforce_tail_end_rules(self):
+        existing_blocks = self.spec_metadata.method_blocks.get(self.method_name)
+        if existing_blocks:
+            if existing_blocks[-1] == WHEN:
+                raise InvalidMethodBlockException(self.spec_metadata, self.method_name, self.block_ast_node,
+                                                  'when blocks must be succeeded by a then block')
+            if existing_blocks[-1] in [SETUP, GIVEN]:
+                raise InvalidMethodBlockException(self.spec_metadata, self.method_name, self.block_ast_node,
+                                                  'Feature methods cannot end with a setup or a given block')
 
 
 class MethodBlockTransformer(ast.NodeTransformer):
