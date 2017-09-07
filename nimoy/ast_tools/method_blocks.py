@@ -68,6 +68,7 @@ class MethodBlockTransformer(ast.NodeTransformer):
 
         if MethodBlockTransformer._is_method_block(with_node):
             block_type = with_node.items[0].context_expr.id
+            MethodBlockRuleEnforcer(self.spec_metadata, self.method_name, with_node).enforce_addition_rules(block_type)
             MethodBlockTransformer._replace_with_block_context(with_node, block_type)
             self.spec_metadata.add_method_block(self.method_name, block_type)
 
