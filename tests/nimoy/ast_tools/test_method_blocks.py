@@ -120,9 +120,6 @@ class JimbobSpec(Specification):
         with setup:
             pass
 
-        with given:
-            pass
-
         with when:
             pass
 
@@ -142,7 +139,7 @@ class JimbobSpec(Specification):
 
         spec_method_body = node.body[1].body[0].body
 
-        block_types = ['setup', 'given', 'when', 'then', 'expect', 'where']
+        block_types = ['setup', 'when', 'then', 'expect', 'where']
         for index, block_type in enumerate(block_types):
             self.assertEqual(spec_method_body[index].items[0].context_expr.func.attr, '_method_block_context')
             self.assertEqual(spec_method_body[index].items[0].context_expr.args[0].s, block_type)
