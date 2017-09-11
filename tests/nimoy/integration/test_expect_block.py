@@ -1,9 +1,8 @@
-import unittest
-from nimoy.spec_runner import SpecRunner
 from nimoy.runner.exceptions import InvalidMethodBlockException
+from tests.nimoy.integration.base_integration_test import BaseIntegrationTest
 
 
-class TestExpectBlocks(unittest.TestCase):
+class TestExpectBlocks(BaseIntegrationTest):
     def test_successful_given(self):
         spec_contents = """from nimoy.specification import Specification
         
@@ -16,7 +15,7 @@ class JimbobSpec(Specification):
             a != 4
         """
 
-        result = self.run_spec_contents(spec_contents)
+        result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
     def test_successful_setup(self):
@@ -31,7 +30,7 @@ class JimbobSpec(Specification):
             a != 4
         """
 
-        result = self.run_spec_contents(spec_contents)
+        result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
     def test_dangling_setup(self):
@@ -45,7 +44,7 @@ class JimbobSpec(Specification):
         """
 
         with self.assertRaises(InvalidMethodBlockException):
-            self.run_spec_contents(spec_contents)
+            self._run_spec_contents(spec_contents)
 
     def test_dangling_given(self):
         spec_contents = """from nimoy.specification import Specification
@@ -57,7 +56,7 @@ class JimbobSpec(Specification):
             a = 3
         """
         with self.assertRaises(InvalidMethodBlockException):
-            self.run_spec_contents(spec_contents)
+            self._run_spec_contents(spec_contents)
 
     def test_successful_when_then(self):
         spec_contents = """from nimoy.specification import Specification
@@ -71,7 +70,7 @@ class JimbobSpec(Specification):
             a != 4
         """
 
-        result = self.run_spec_contents(spec_contents)
+        result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
     def test_failing_when_then(self):
@@ -86,7 +85,7 @@ class JimbobSpec(Specification):
             a == 4
         """
 
-        result = self.run_spec_contents(spec_contents)
+        result = self._run_spec_contents(spec_contents)
         self.assertFalse(result.wasSuccessful())
 
     def test_dangling_when(self):
@@ -102,7 +101,7 @@ class JimbobSpec(Specification):
         """
 
         with self.assertRaises(InvalidMethodBlockException):
-            self.run_spec_contents(spec_contents)
+            self._run_spec_contents(spec_contents)
 
     def test_dangling_then(self):
         spec_contents = """from nimoy.specification import Specification
@@ -117,7 +116,7 @@ class JimbobSpec(Specification):
         """
 
         with self.assertRaises(InvalidMethodBlockException):
-            self.run_spec_contents(spec_contents)
+            self._run_spec_contents(spec_contents)
 
     def test_successful_expectation(self):
         spec_contents = """from nimoy.specification import Specification
@@ -130,7 +129,7 @@ class JimbobSpec(Specification):
             a != 4
         """
 
-        result = self.run_spec_contents(spec_contents)
+        result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
     def test_failing_expectation(self):
@@ -144,7 +143,7 @@ class JimbobSpec(Specification):
             a == 4
         """
 
-        result = self.run_spec_contents(spec_contents)
+        result = self._run_spec_contents(spec_contents)
         self.assertFalse(result.wasSuccessful())
 
     def test_multiple_expectation(self):
@@ -162,7 +161,7 @@ class JimbobSpec(Specification):
             2 in a
         """
 
-        result = self.run_spec_contents(spec_contents)
+        result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
     def test_expect_after_where(self):
@@ -179,8 +178,7 @@ class JimbobSpec(Specification):
         """
 
         with self.assertRaises(InvalidMethodBlockException):
-            self.run_spec_contents(spec_contents)
-
+            self._run_spec_contents(spec_contents)
 
     def test_double_where(self):
         spec_contents = """from nimoy.specification import Specification
@@ -196,7 +194,4 @@ class JimbobSpec(Specification):
         """
 
         with self.assertRaises(InvalidMethodBlockException):
-            self.run_spec_contents(spec_contents)
-
-    def run_spec_contents(self, spec_contents):
-        return SpecRunner._run_on_contents([('/fake/path.py', spec_contents)])
+            self._run_spec_contents(spec_contents)
