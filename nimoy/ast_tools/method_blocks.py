@@ -12,6 +12,52 @@ WHERE = 'where'
 BLOCK_NAMES = [SETUP, GIVEN, WHEN, THEN, EXPECT, WHERE]
 
 
+class WhereBlockVariables:
+    def __init__(self, spec_metadata, method_name) -> None:
+        super().__init__()
+        self.spec_metadata = spec_metadata
+        self.method_name = method_name
+
+    def register_variables(self, block_ast_node):
+        block_body = block_ast_node.body
+        first_expression = block_body[0]
+        if isinstance(first_expression, _ast.Assign):
+            self._register_list_form_variables(block_body)
+        elif isinstance(first_expression.value, _ast.BinOp):
+            self._register_matrix_form_variables(block_body)
+
+    def _register_list_form_variables(self, block_body):
+        for assignment_expression in block_body:
+            variable_name = assignment_expression.targets[0].id
+            variable_values = assignment_expression.value.elts
+            self.spec_metadata.add_method_variable_values(self.method_name, variable_name, variable_values)
+
+    def _register_matrix_form_variables(self, block_body):
+        variable_names_row = block_body[0].value
+        variable_names = []
+        self._collect_variable_names_recursively(variable_names_row, variable_names)
+
+        for values_row in block_body[1:]:
+            variable_values = []
+            self._collect_variable_values_recursively(values_row.value, variable_values)
+            for index, value in enumerate(variable_values):
+                self.spec_metadata.add_method_variable_value(self.method_name, variable_names[index], value)
+
+    def _collect_variable_names_recursively(self, binary_op_node, variable_names):
+        if isinstance(binary_op_node.left, _ast.BinOp):
+            self._collect_variable_names_recursively(binary_op_node.left, variable_names)
+        else:
+            variable_names.append(binary_op_node.left.id)
+        variable_names.append(binary_op_node.right.id)
+
+    def _collect_variable_values_recursively(self, binary_op_node, variable_values):
+        if isinstance(binary_op_node.left, _ast.BinOp):
+            self._collect_variable_names_recursively(binary_op_node.left, variable_values)
+        else:
+            variable_values.append(binary_op_node.left)
+        variable_values.append(binary_op_node.right)
+
+
 class MethodBlockRuleEnforcer:
     def __init__(self, spec_metadata, method_name, block_ast_node) -> None:
         super().__init__()
@@ -96,3 +142,4 @@ class MethodBlockTransformer(ast.NodeTransformer):
         with_node.items[0].context_expr = _ast.Call(
             func=_ast.Attribute(value=_ast.Name(id='self', ctx=_ast.Load()), attr='_method_block_context',
                                 ctx=_ast.Load()), args=[_ast.Str(s=block_type)], keywords=[])
+

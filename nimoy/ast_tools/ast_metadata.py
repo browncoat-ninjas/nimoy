@@ -5,6 +5,7 @@ class SpecMetadata:
         self.owning_module = None
         self.methods = []
         self.method_blocks = {}
+        self.method_variables = {}
 
     def set_owning_module(self, owning_module):
         self.owning_module = owning_module
@@ -12,6 +13,17 @@ class SpecMetadata:
     def add_test_method(self, test_method):
         self.methods.append(test_method)
         self.method_blocks[test_method] = []
+        self.method_variables[test_method] = {}
 
     def add_method_block(self, test_method, block_type):
         self.method_blocks[test_method].append(block_type)
+
+    def add_method_variable_values(self, test_method, variable_name, values):
+        if not self.method_variables[test_method].get(variable_name):
+            self.method_variables[test_method][variable_name] = []
+        self.method_variables[test_method][variable_name].extend(values)
+
+    def add_method_variable_value(self, test_method, variable_name, value):
+        if not self.method_variables[test_method].get(variable_name):
+            self.method_variables[test_method][variable_name] = []
+        self.method_variables[test_method][variable_name].append(value)
