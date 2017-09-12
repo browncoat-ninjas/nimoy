@@ -23,7 +23,7 @@ class WhereBlockVariables:
         first_expression = block_body[0]
         if isinstance(first_expression, _ast.Assign):
             self._register_list_form_variables(block_body)
-        elif isinstance(first_expression.value, _ast.BinOp):
+        elif hasattr(first_expression, 'value') and isinstance(first_expression.value, _ast.BinOp):
             self._register_matrix_form_variables(block_body)
 
     def _register_list_form_variables(self, block_body):
@@ -120,6 +120,9 @@ class MethodBlockTransformer(ast.NodeTransformer):
 
             if block_type in [THEN, EXPECT]:
                 ComparisonExpressionTransformer().visit(with_node)
+
+            if block_type == WHERE:
+                WhereBlockVariables(self.spec_metadata, self.method_name).register_variables(with_node)
 
         return with_node
 
