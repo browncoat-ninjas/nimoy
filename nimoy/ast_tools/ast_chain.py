@@ -1,4 +1,4 @@
-from nimoy.ast_tools.spec_transformer import SpecTransformer
+from nimoy.ast_tools.specs import SpecTransformer
 
 
 def apply(node):

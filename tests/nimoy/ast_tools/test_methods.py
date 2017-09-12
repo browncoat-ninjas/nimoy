@@ -1,13 +1,13 @@
 import unittest
 from unittest import mock
 import ast
-from nimoy.ast_tools.method_registration_transformer import MethodRegistrationTransformer
+from nimoy.ast_tools.methods import MethodRegistrationTransformer
 from nimoy.ast_tools.ast_metadata import SpecMetadata
 
 
 class MethodRegistrationTransformerTest(unittest.TestCase):
-    @mock.patch('nimoy.ast_tools.method_registration_transformer.MethodBlockRuleEnforcer')
-    @mock.patch('nimoy.ast_tools.method_registration_transformer.MethodBlockTransformer')
+    @mock.patch('nimoy.ast_tools.methods.MethodBlockRuleEnforcer')
+    @mock.patch('nimoy.ast_tools.methods.MethodBlockTransformer')
     def test_that_function_was_added(self, method_block_transformer, method_block_rule_enforcer):
         module_definition = 'class JSpec:\n    def test_jim(self):\n        pass\n    def _jim(self):\n        pass\n\n'
         node = ast.parse(module_definition, mode='exec')

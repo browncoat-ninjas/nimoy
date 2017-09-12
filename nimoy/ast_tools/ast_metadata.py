@@ -1,3 +1,6 @@
+import copy
+
+
 class SpecMetadata:
     def __init__(self, name) -> None:
         super().__init__()
@@ -27,3 +30,7 @@ class SpecMetadata:
         if not self.method_variables[test_method].get(variable_name):
             self.method_variables[test_method][variable_name] = []
         self.method_variables[test_method][variable_name].append(value)
+
+    def clone_method(self, original_method_name, cloned_method_name):
+        self.methods.append(cloned_method_name)
+        self.method_blocks[cloned_method_name] = copy.deepcopy(self.method_blocks[original_method_name])

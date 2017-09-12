@@ -1,11 +1,11 @@
 import unittest
 import ast
 from unittest import mock
-from nimoy.ast_tools.spec_transformer import SpecTransformer
+from nimoy.ast_tools.specs import SpecTransformer
 
 
 class TestSpecTransformer(unittest.TestCase):
-    @mock.patch('nimoy.ast_tools.spec_transformer.MethodRegistrationTransformer')
+    @mock.patch('nimoy.ast_tools.specs.MethodRegistrationTransformer')
     def test_find_specs_in_module(self, method_registration_transformer):
         spec_definition = """from nimoy.specification import Specification
         
