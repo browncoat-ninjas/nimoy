@@ -52,7 +52,7 @@ class WhereBlockVariables:
 
     def _collect_variable_values_recursively(self, binary_op_node, variable_values):
         if isinstance(binary_op_node.left, _ast.BinOp):
-            self._collect_variable_names_recursively(binary_op_node.left, variable_values)
+            self._collect_variable_values_recursively(binary_op_node.left, variable_values)
         else:
             variable_values.append(binary_op_node.left)
         variable_values.append(binary_op_node.right)
