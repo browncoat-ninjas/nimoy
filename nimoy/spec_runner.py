@@ -1,6 +1,5 @@
 import argparse
 import os
-import sys
 from nimoy.runner.spec_finder import SpecFinder
 from nimoy.runner.spec_reader import SpecReader
 from nimoy.runner.spec_loader import SpecLoader
@@ -41,8 +40,3 @@ class SpecRunner:
     @staticmethod
     def _execute_specs(specs):
         return SpecExecutor(unittest_execution_framework).execute(specs)
-
-
-if __name__ == '__main__':
-    result = SpecRunner().run()
-    sys.exit(not result.wasSuccessful())
