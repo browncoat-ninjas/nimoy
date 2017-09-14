@@ -1,7 +1,7 @@
 from unittest import TestCase
-from nimoy.context.method_block_context import MethodBlock
+from nimoy.context.feature_block_context import FeatureBlock
 
 
 class Specification(TestCase):
-    def _method_block_context(self, block_name):
-        return MethodBlock(block_name)
+    def _feature_block_context(self, block_name):
+        return FeatureBlock(block_name)

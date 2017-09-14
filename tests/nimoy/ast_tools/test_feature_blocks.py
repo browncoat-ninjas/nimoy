@@ -1,11 +1,11 @@
 import unittest
 import ast
 from unittest import mock
-from nimoy.ast_tools.method_blocks import MethodBlockTransformer
-from nimoy.ast_tools.method_blocks import MethodBlockRuleEnforcer
-from nimoy.ast_tools.method_blocks import WhereBlockVariables
+from nimoy.ast_tools.feature_blocks import FeatureBlockTransformer
+from nimoy.ast_tools.feature_blocks import FeatureBlockRuleEnforcer
+from nimoy.ast_tools.feature_blocks import WhereBlockVariables
 from nimoy.ast_tools.ast_metadata import SpecMetadata
-from nimoy.runner.exceptions import InvalidMethodBlockException
+from nimoy.runner.exceptions import InvalidFeatureBlockException
 
 
 class WhereBlockVariablesTest(unittest.TestCase):
@@ -18,7 +18,7 @@ class WhereBlockVariablesTest(unittest.TestCase):
         spec_metadata = get_basic_spec_metadata()
         WhereBlockVariables(spec_metadata, 'test_it').register_variables(block_node.body[0])
 
-        a_values = spec_metadata.method_variables['test_it']['a']
+        a_values = spec_metadata.feature_variables['test_it']['a']
         assert a_values[0].n == 1
         assert a_values[1].n == 2
 
@@ -32,11 +32,11 @@ class WhereBlockVariablesTest(unittest.TestCase):
         spec_metadata = get_basic_spec_metadata()
         WhereBlockVariables(spec_metadata, 'test_it').register_variables(block_node.body[0])
 
-        a_values = spec_metadata.method_variables['test_it']['a']
+        a_values = spec_metadata.feature_variables['test_it']['a']
         assert a_values[0].n == 2
         assert a_values[1].n == 4
 
-        b_values = spec_metadata.method_variables['test_it']['b']
+        b_values = spec_metadata.feature_variables['test_it']['b']
         assert b_values[0].n == 1
         assert b_values[1].n == 3
 
@@ -51,122 +51,122 @@ class WhereBlockVariablesTest(unittest.TestCase):
         spec_metadata = get_basic_spec_metadata()
         WhereBlockVariables(spec_metadata, 'test_it').register_variables(block_node.body[0])
 
-        a_values = spec_metadata.method_variables['test_it']['a']
+        a_values = spec_metadata.feature_variables['test_it']['a']
         assert a_values[0].n == 2
         assert a_values[1].n == 4
 
-        b_values = spec_metadata.method_variables['test_it']['b']
+        b_values = spec_metadata.feature_variables['test_it']['b']
         assert b_values[0].n == 1
         assert b_values[1].n == 3
 
 
-class MethodBlockRuleEnforcerTest(unittest.TestCase):
+class FeatureBlockRuleEnforcerTest(unittest.TestCase):
     def test_add_setup_and_given_as_first_blocks(self):
         spec_metadata = get_basic_spec_metadata()
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
 
         enforcer.enforce_addition_rules('given')
         enforcer.enforce_addition_rules('setup')
 
     def test_only_one_setup_and_given_are_allowed(self):
         spec_metadata = get_basic_spec_metadata()
-        spec_metadata.add_method_block('test_it', 'given')
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        spec_metadata.add_feature_block('test_it', 'given')
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('given')
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('setup')
 
         spec_metadata = get_basic_spec_metadata()
-        spec_metadata.add_method_block('test_it', 'setup')
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        spec_metadata.add_feature_block('test_it', 'setup')
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('given')
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('setup')
 
     def test_setup_and_given_are_allowed_only_in_the_beginning(self):
         spec_metadata = get_basic_spec_metadata()
-        spec_metadata.add_method_block('test_it', 'expect')
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        spec_metadata.add_feature_block('test_it', 'expect')
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('given')
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('setup')
 
     def test_setup_and_given_cant_dangle(self):
         spec_metadata = get_basic_spec_metadata()
-        spec_metadata.add_method_block('test_it', 'given')
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
-        with self.assertRaises(InvalidMethodBlockException):
+        spec_metadata.add_feature_block('test_it', 'given')
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_tail_end_rules()
 
         spec_metadata = get_basic_spec_metadata()
-        spec_metadata.add_method_block('test_it', 'setup')
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
-        with self.assertRaises(InvalidMethodBlockException):
+        spec_metadata.add_feature_block('test_it', 'setup')
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_tail_end_rules()
 
     def test_then_cant_precede_when(self):
         spec_metadata = get_basic_spec_metadata()
 
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('then')
 
-        spec_metadata.add_method_block('test_it', 'expect')
+        spec_metadata.add_feature_block('test_it', 'expect')
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('then')
 
     def test_when_cant_dangle(self):
         spec_metadata = get_basic_spec_metadata()
-        spec_metadata.add_method_block('test_it', 'when')
+        spec_metadata.add_feature_block('test_it', 'when')
 
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('expect')
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_tail_end_rules()
 
     def test_then_after_when(self):
         spec_metadata = get_basic_spec_metadata()
-        spec_metadata.add_method_block('test_it', 'when')
+        spec_metadata.add_feature_block('test_it', 'when')
 
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
         enforcer.enforce_addition_rules('then')
 
     def test_block_cant_succeed_where(self):
         spec_metadata = get_basic_spec_metadata()
-        spec_metadata.add_method_block('test_it', 'where')
+        spec_metadata.add_feature_block('test_it', 'where')
 
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('expect')
 
     def test_cant_add_more_than_one_where(self):
         spec_metadata = get_basic_spec_metadata()
-        spec_metadata.add_method_block('test_it', 'where')
+        spec_metadata.add_feature_block('test_it', 'where')
 
-        enforcer = MethodBlockRuleEnforcer(spec_metadata, 'test_it', {})
+        enforcer = FeatureBlockRuleEnforcer(spec_metadata, 'test_it', {})
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             enforcer.enforce_addition_rules('where')
 
 
-class MethodBlockTransformerTest(unittest.TestCase):
-    @mock.patch('nimoy.ast_tools.method_blocks.ComparisonExpressionTransformer')
-    def test_that_function_was_added(self, comparison_expression_transformer):
+class FeatureBlockTransformerTest(unittest.TestCase):
+    @mock.patch('nimoy.ast_tools.feature_blocks.ComparisonExpressionTransformer')
+    def test_that_feature_was_added(self, comparison_expression_transformer):
         module_definition = """from nimoy.specification import Specification
 class JimbobSpec(Specification):
     def test_it(self):
@@ -188,22 +188,22 @@ class JimbobSpec(Specification):
         node = ast.parse(module_definition, mode='exec')
 
         spec_metadata = get_basic_spec_metadata()
-        MethodBlockTransformer(spec_metadata, 'test_it').visit(node)
+        FeatureBlockTransformer(spec_metadata, 'test_it').visit(node)
 
-        spec_method_body = node.body[1].body[0].body
+        spec_feature_body = node.body[1].body[0].body
 
         block_types = ['setup', 'when', 'then', 'expect', 'where']
         for index, block_type in enumerate(block_types):
-            self.assertEqual(spec_method_body[index].items[0].context_expr.func.attr, '_method_block_context')
-            self.assertEqual(spec_method_body[index].items[0].context_expr.args[0].s, block_type)
+            self.assertEqual(spec_feature_body[index].items[0].context_expr.func.attr, '_feature_block_context')
+            self.assertEqual(spec_feature_body[index].items[0].context_expr.args[0].s, block_type)
 
         self.assertEqual(comparison_expression_transformer.call_count, 2)
         self.assertEqual(comparison_expression_transformer.return_value.visit.call_count, 2)
-        self.assertEqual(spec_metadata.method_blocks['test_it'], block_types)
+        self.assertEqual(spec_metadata.feature_blocks['test_it'], block_types)
 
 
 def get_basic_spec_metadata():
     spec_metadata = SpecMetadata('spec_name')
     spec_metadata.set_owning_module('JimbobSpec')
-    spec_metadata.add_test_method('test_it')
+    spec_metadata.add_feature('test_it')
     return spec_metadata

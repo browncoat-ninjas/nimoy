@@ -9,7 +9,7 @@ class SpecExecutor:
         for spec_metadata in specs:
             spec_class_module = spec_metadata.owning_module
 
-            for spec_method in spec_metadata.methods:
-                self.execution_framework.append_test(suite, spec_class_module(spec_method))
+            for spec_feature in spec_metadata.features:
+                self.execution_framework.append_test(suite, spec_class_module(spec_feature))
 
         return self.execution_framework.run(suite)

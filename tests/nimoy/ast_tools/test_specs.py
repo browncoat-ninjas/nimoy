@@ -5,8 +5,8 @@ from nimoy.ast_tools.specs import SpecTransformer
 
 
 class TestSpecTransformer(unittest.TestCase):
-    @mock.patch('nimoy.ast_tools.specs.MethodRegistrationTransformer')
-    def test_find_specs_in_module(self, method_registration_transformer):
+    @mock.patch('nimoy.ast_tools.specs.FeatureRegistrationTransformer')
+    def test_find_specs_in_module(self, feature_registration_transformer):
         spec_definition = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
@@ -27,5 +27,5 @@ class Bobson:
         self.assertEqual(found_metadata[0].name, 'JimbobSpec')
         self.assertEqual(found_metadata[1].name, 'JonesSpec')
 
-        method_registration_transformer.expect_called_once()
-        method_registration_transformer.return_value.visit.expect_called_once()
+        feature_registration_transformer.expect_called_once()
+        feature_registration_transformer.return_value.visit.expect_called_once()

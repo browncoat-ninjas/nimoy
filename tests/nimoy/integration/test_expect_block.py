@@ -1,4 +1,4 @@
-from nimoy.runner.exceptions import InvalidMethodBlockException
+from nimoy.runner.exceptions import InvalidFeatureBlockException
 from tests.nimoy.integration.base_integration_test import BaseIntegrationTest
 
 
@@ -43,7 +43,7 @@ class JimbobSpec(Specification):
             a = 3
         """
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             self._run_spec_contents(spec_contents)
 
     def test_dangling_given(self):
@@ -55,7 +55,7 @@ class JimbobSpec(Specification):
         with given:
             a = 3
         """
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             self._run_spec_contents(spec_contents)
 
     def test_successful_when_then(self):
@@ -100,7 +100,7 @@ class JimbobSpec(Specification):
             b = 4
         """
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             self._run_spec_contents(spec_contents)
 
     def test_dangling_then(self):
@@ -115,7 +115,7 @@ class JimbobSpec(Specification):
             a == 4
         """
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             self._run_spec_contents(spec_contents)
 
     def test_successful_expectation(self):
@@ -177,7 +177,7 @@ class JimbobSpec(Specification):
             2 != 1
         """
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             self._run_spec_contents(spec_contents)
 
     def test_double_where(self):
@@ -193,5 +193,5 @@ class JimbobSpec(Specification):
             pass
         """
 
-        with self.assertRaises(InvalidMethodBlockException):
+        with self.assertRaises(InvalidFeatureBlockException):
             self._run_spec_contents(spec_contents)

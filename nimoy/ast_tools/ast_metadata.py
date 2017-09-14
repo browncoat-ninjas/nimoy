@@ -6,31 +6,31 @@ class SpecMetadata:
         super().__init__()
         self.name = name
         self.owning_module = None
-        self.methods = []
-        self.method_blocks = {}
-        self.method_variables = {}
+        self.features = []
+        self.feature_blocks = {}
+        self.feature_variables = {}
 
     def set_owning_module(self, owning_module):
         self.owning_module = owning_module
 
-    def add_test_method(self, test_method):
-        self.methods.append(test_method)
-        self.method_blocks[test_method] = []
-        self.method_variables[test_method] = {}
+    def add_feature(self, feature_name):
+        self.features.append(feature_name)
+        self.feature_blocks[feature_name] = []
+        self.feature_variables[feature_name] = {}
 
-    def add_method_block(self, test_method, block_type):
-        self.method_blocks[test_method].append(block_type)
+    def add_feature_block(self, feature_name, block_type):
+        self.feature_blocks[feature_name].append(block_type)
 
-    def add_method_variable_values(self, test_method, variable_name, values):
-        if not self.method_variables[test_method].get(variable_name):
-            self.method_variables[test_method][variable_name] = []
-        self.method_variables[test_method][variable_name].extend(values)
+    def add_feature_variable_values(self, feature_name, variable_name, values):
+        if not self.feature_variables[feature_name].get(variable_name):
+            self.feature_variables[feature_name][variable_name] = []
+        self.feature_variables[feature_name][variable_name].extend(values)
 
-    def add_method_variable_value(self, test_method, variable_name, value):
-        if not self.method_variables[test_method].get(variable_name):
-            self.method_variables[test_method][variable_name] = []
-        self.method_variables[test_method][variable_name].append(value)
+    def add_feature_variable_value(self, feature_name, variable_name, value):
+        if not self.feature_variables[feature_name].get(variable_name):
+            self.feature_variables[feature_name][variable_name] = []
+        self.feature_variables[feature_name][variable_name].append(value)
 
-    def clone_method(self, original_method_name, cloned_method_name):
-        self.methods.append(cloned_method_name)
-        self.method_blocks[cloned_method_name] = copy.deepcopy(self.method_blocks[original_method_name])
+    def clone_feature(self, original_feature_name, cloned_feature_name):
+        self.features.append(cloned_feature_name)
+        self.feature_blocks[cloned_feature_name] = copy.deepcopy(self.feature_blocks[original_feature_name])

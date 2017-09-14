@@ -3,7 +3,7 @@ import _ast
 import collections
 import copy
 from nimoy.ast_tools.ast_metadata import SpecMetadata
-from nimoy.ast_tools.methods import MethodRegistrationTransformer
+from nimoy.ast_tools.features import FeatureRegistrationTransformer
 
 
 class FeatureVariables:
@@ -14,7 +14,7 @@ class FeatureVariables:
     def inject(self, spec_ast_node):
         features_that_require_injection = [feature_definition for feature_definition in spec_ast_node.body if
                                            (isinstance(feature_definition, _ast.FunctionDef) and
-                                            self.spec_metadata.method_variables[feature_definition.name])]
+                                            self.spec_metadata.feature_variables[feature_definition.name])]
 
         for feature_that_requires_injection in features_that_require_injection:
             self._inject_feature_variables(spec_ast_node, feature_that_requires_injection)
@@ -22,7 +22,7 @@ class FeatureVariables:
     def _inject_feature_variables(self, class_node, feature_that_requires_injection):
         feature_name = feature_that_requires_injection.name
 
-        feature_variables = self.spec_metadata.method_variables[feature_name]
+        feature_variables = self.spec_metadata.feature_variables[feature_name]
         feature_variable_names = list(feature_variables.keys())
 
         tupled_feature_variables = FeatureVariables._get_feature_variables_as_tuples(feature_variable_names,
@@ -35,7 +35,7 @@ class FeatureVariables:
                 feature_copy.name = "%s-%s" % (feature_name, str(index))
                 FeatureVariables._inject_features(feature_copy, feature_variable_names, variable_set)
                 class_node.body.insert(first_feature_index, feature_copy)
-                self.spec_metadata.clone_method(feature_name, feature_copy.name)
+                self.spec_metadata.clone_feature(feature_name, feature_copy.name)
 
         first_feature_set = tupled_feature_variables[0]
         FeatureVariables._inject_features(feature_that_requires_injection, feature_variable_names, first_feature_set)
@@ -66,7 +66,7 @@ class SpecTransformer(ast.NodeTransformer):
         if class_extends_spec:
             metadata = SpecMetadata(class_node.name)
             self._register_spec(metadata)
-            MethodRegistrationTransformer(metadata).visit(class_node)
+            FeatureRegistrationTransformer(metadata).visit(class_node)
             FeatureVariables(metadata).inject(class_node)
 
         return class_node

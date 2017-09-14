@@ -1,4 +1,4 @@
-class MethodBlock:
+class FeatureBlock:
     def __init__(self, block_type) -> None:
         super().__init__()
         self.block_type = block_type
