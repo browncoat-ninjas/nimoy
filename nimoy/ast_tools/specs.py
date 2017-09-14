@@ -1,7 +1,7 @@
-import ast
-import _ast
 import collections
 import copy
+import ast
+import _ast
 from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.ast_tools.features import FeatureRegistrationTransformer
 

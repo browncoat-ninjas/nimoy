@@ -1,5 +1,5 @@
-import unittest
 import ast
+import unittest
 from unittest import mock
 from nimoy.ast_tools.feature_blocks import FeatureBlockTransformer
 from nimoy.ast_tools.feature_blocks import FeatureBlockRuleEnforcer

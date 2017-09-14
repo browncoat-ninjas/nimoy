@@ -1,5 +1,5 @@
-import unittest
 import ast
+import unittest
 from unittest import mock
 from nimoy.ast_tools.specs import SpecTransformer
 
