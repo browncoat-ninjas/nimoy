@@ -19,7 +19,7 @@ class FeatureVariables:
         for feature_that_requires_injection in features_that_require_injection:
             self._inject_feature_variables(spec_ast_node, feature_that_requires_injection)
 
-    def _inject_feature_variables(self, class_node, feature_that_requires_injection):
+    def _inject_feature_variables(self, specification_node, feature_that_requires_injection):
         feature_name = feature_that_requires_injection.name
 
         feature_variables = self.spec_metadata.feature_variables[feature_name]
@@ -28,13 +28,13 @@ class FeatureVariables:
         tupled_feature_variables = FeatureVariables._get_feature_variables_as_tuples(feature_variable_names,
                                                                                      feature_variables)
 
-        first_feature_index = class_node.body.index(feature_that_requires_injection)
+        first_feature_index = specification_node.body.index(feature_that_requires_injection)
         if len(tupled_feature_variables) > 1:
             for index, variable_set in enumerate(tupled_feature_variables[1:]):
                 feature_copy = copy.deepcopy(feature_that_requires_injection)
                 feature_copy.name = "%s-%s" % (feature_name, str(index))
                 FeatureVariables._inject_features(feature_copy, feature_variable_names, variable_set)
-                class_node.body.insert(first_feature_index, feature_copy)
+                specification_node.body.insert(first_feature_index, feature_copy)
                 self.spec_metadata.clone_feature(feature_name, feature_copy.name)
 
         first_feature_set = tupled_feature_variables[0]
