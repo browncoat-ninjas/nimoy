@@ -59,7 +59,7 @@ OK
 === Stimulus and Response Specification
 
 A specification with a `setup`, `when` and `then` block.
-`when` blocks describe a certain action and `then` block assert the results of that action.
+`when` blocks describe a certain action and `then` blocks assert the results of that action.
 
 .stimulus_and_response_spec.py
 [source,python]
