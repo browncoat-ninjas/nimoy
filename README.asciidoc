@@ -1,0 +1,138 @@
+= Nimoy
+
+A testing and specification framework for Python 3, heavily inspired by the amazing http://spockframework.org/[Spock Framework].
+
+image:https://travis-ci.org/browncoat-ninjas/nimoy.svg?branch=master["Build Status", link="https://travis-ci.org/browncoat-ninjas/nimoy"]
+
+== Why?
+
+The http://spockframework.org/[Spock Framework] has set a new standard as to what testing frameworks should be like - beautiful, expressive, pragmatic and fun.
+
+While `unittest`, https://github.com/pytest-dev/pytest[pytest] and https://github.com/nose-devs/nose2[nose2] are great, there's still room for improvement.
+
+The aim of this project is to port Spock to Python while maintaining the original vision as much as possible.
+
+== Features
+
+* Based on `unittest`, so no additional dependencies are required and specifications are recognized by IDEs and report analyzers
+* Reduction of boilerplate code.
+* Write detailed specifications with clear distinction.
+* Auto discovery of specifications.
+* Write data-driven specifications.
+
+== Examples
+
+Nimoy will pick up on any module ending with `_spec.py` and will treat and class that extends `nimoy.specification.Specification` as a Specification class.
+
+=== Simple Specification
+
+A specification with a `given` (alias for `setup`) and `expect` block.
+
+*Note that conditional statements do not require you to write `self.assertX` or even `assert`. Nimoy will still evaluate them.*
+
+.simple_spec.py
+[source,python]
+----
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    def my_feature_method(self):
+        with given:
+            a = 3
+        with expect:
+            a != 4
+----
+
+[source,bash]
+----
+$ nimoy
+
+my_feature_method (builtins.MySpec) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+----
+
+=== Stimulus and Response Specification
+
+A specification with a `setup`, `when` and `then` block.
+`when` blocks describe a certain action and `then` block assert the results of that action.
+
+.stimulus_and_response_spec.py
+[source,python]
+----
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    def my_feature_method(self):
+        with setup:
+            a = 1
+
+        with when:
+            a = a + 1
+
+        with then:
+            a == 2
+----
+
+[source,bash]
+----
+$ nimoy
+
+my_feature_method (builtins.MySpec) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+----
+
+=== Data-driven Specification
+
+Using the powerful `where` block, we can parametrise our specification and execute it multiple times with different sets of data.
+
+.date_driven_spec.py
+[source,python]
+----
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    def my_feature_method(self):
+        with given:
+            a = value_of_a
+            b = value_of_b
+
+        with expect:
+            (a * b) == expected_value
+
+        with where:
+            value_of_a | value_of_b | expected_value
+            1          | 10         | 10
+            2          | 20         | 40
+----
+
+[source,bash]
+----
+$ nimoy
+
+my_feature_method (builtins.MySpec) ... ok
+my_feature_method_1 (builtins.MySpec) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+----
+
+=== More great features to come!
+
+== License
+
+Apache License 2.0
+
+== In memory of Leonard Nimoy 1931-2015

@@ -32,7 +32,7 @@ class FeatureVariables:
         if len(tupled_feature_variables) > 1:
             for index, variable_set in enumerate(tupled_feature_variables[1:]):
                 feature_copy = copy.deepcopy(feature_that_requires_injection)
-                feature_copy.name = "%s-%s" % (feature_name, str(index))
+                feature_copy.name = "%s_%s" % (feature_name, str(index + 1))
                 FeatureVariables._inject_features(feature_copy, feature_variable_names, variable_set)
                 specification_node.body.insert(first_feature_index, feature_copy)
                 self.spec_metadata.clone_feature(feature_name, feature_copy.name)
