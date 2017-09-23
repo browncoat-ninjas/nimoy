@@ -1,21 +1,22 @@
 import ast
 import _ast
+from nimoy.compare.types import Types
 
 
 class ComparisonExpressionTransformer(ast.NodeTransformer):
     def __init__(self) -> None:
         super().__init__()
         self.comparator_methods = {
-            _ast.Eq: 'assertEqual',
-            _ast.NotEq: 'assertNotEqual',
-            _ast.Lt: 'assertLess',
-            _ast.LtE: 'assertLessEqual',
-            _ast.Gt: 'assertGreater',
-            _ast.GtE: 'assertGreaterEqual',
-            _ast.Is: 'assertIs',
-            _ast.IsNot: 'assertIsNot',
-            _ast.In: 'assertIn',
-            _ast.NotIn: 'assertNotIn',
+            _ast.Eq: Types.EQUAL,
+            _ast.NotEq: Types.NOT_EQUAL,
+            _ast.Lt: Types.LESS_THAN,
+            _ast.LtE: Types.LESS_THAN_EQUAL,
+            _ast.Gt: Types.GREATER_THAN,
+            _ast.GtE: Types.GREATER_THAN_EQUAL,
+            _ast.Is: Types.IS,
+            _ast.IsNot: Types.IS_NOT,
+            _ast.In: Types.IN,
+            _ast.NotIn: Types.NOT_IN,
         }
 
     def visit_Expr(self, expression_node):
@@ -28,15 +29,15 @@ class ComparisonExpressionTransformer(ast.NodeTransformer):
         # numbers
         comparison_operation = value.ops[0]
         comparison_operation_type = type(comparison_operation)
-        unittest_operation = self.comparator_methods[comparison_operation_type]
+        internal_comparison_type = self.comparator_methods[comparison_operation_type]
 
         expression_node.value = _ast.Call(
             func=_ast.Attribute(
                 value=_ast.Name(id='self', ctx=_ast.Load()),
-                attr=unittest_operation,
+                attr='_compare',
                 ctx=_ast.Load()
             ),
-            args=[value.left, value.comparators[0]],
+            args=[value.left, value.comparators[0], _ast.Str(s=internal_comparison_type.name)],
             keywords=[]
         )
         return expression_node
