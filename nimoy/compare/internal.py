@@ -7,13 +7,18 @@ from hamcrest import greater_than
 from hamcrest import greater_than_or_equal_to
 from hamcrest import is_
 from hamcrest import is_in
+import difflib
 from nimoy.compare.types import Types
 
 
 class Compare:
     def compare(self, left, right, comparison_type_name):
         comparison_type = Types[comparison_type_name]
-        self._select_comparison_method(left, right, comparison_type)
+        try:
+            self._select_comparison_method(left, right, comparison_type)
+        except AssertionError as assertion_error:
+            error_message = Compare.__reformat_error_message(assertion_error, left, right)
+            raise AssertionError(error_message) from None
 
     def _select_comparison_method(self, left, right, comparison_type):
         if comparison_type == Types.EQUAL:
@@ -38,3 +43,20 @@ class Compare:
             assert_that(left, is_not(is_in(right)))
         else:
             raise Exception()
+
+    @staticmethod
+    def __reformat_error_message(assertion_error, left, right):
+        error_message = str(assertion_error)
+        if Compare.__is_string(left) and Compare.__is_string(right):
+            d = difflib.Differ()
+            diff = d.compare(left.split('\n'), right.split('\n'))
+            error_message = "%sHint:\n%s" % (error_message, '\n'.join(diff))
+        return error_message
+
+    @staticmethod
+    def __is_string(value):
+        return isinstance(value, str)
+
+    @staticmethod
+    def __is_list(value):
+        return isinstance(value, list)
