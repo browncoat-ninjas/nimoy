@@ -14,11 +14,12 @@ The aim of this project is to port Spock to Python while maintaining the origina
 
 == Features
 
-* Based on `unittest`, so no additional dependencies are required and specifications are recognized by IDEs and report analyzers
+* Based on `unittest`, so minimal dependencies are required and specifications are recognized by IDEs and report analyzers
 * Reduction of boilerplate code.
 * Write detailed specifications with clear distinction.
 * Auto discovery of specifications.
 * Write data-driven specifications.
+* See fancy detailed assertion failure reports.
 
 == Examples
 
@@ -39,21 +40,42 @@ class MySpec(Specification):
 
     def my_feature_method(self):
         with given:
-            a = 3
+            a = 'The quick brown fox'
         with expect:
-            a != 4
+            a == 'The quick frown box'
 ----
 
 [source,bash]
 ----
 $ nimoy
 
-my_feature_method (builtins.MySpec) ... ok
+my_feature_method (builtins.MySpec) ... FAIL
+
+======================================================================
+FAIL: my_feature_method (builtins.MySpec)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/noam/something/test_spec.py", line 9, in my_feature_method
+    a == 'The quick frown box'
+  File "/Users/noam/work/private/nimoy/nimoy/specification.py", line 11, in _compare
+    Compare().compare(left, right, comparison_type_name)
+  File "/Users/noam/work/private/nimoy/nimoy/compare/internal.py", line 21, in compare
+    raise AssertionError(error_message) from None
+AssertionError:
+Expected: 'The quick frown box'
+     but: was 'The quick brown fox'
+Hint:
+- The quick brown fox
+?           ^     ^
+
++ The quick frown box
+?           ^     ^
+
 
 ----------------------------------------------------------------------
-Ran 1 test in 0.000s
+Ran 1 test in 0.002s
 
-OK
+FAILED (failures=1)
 ----
 
 === Stimulus and Response Specification
