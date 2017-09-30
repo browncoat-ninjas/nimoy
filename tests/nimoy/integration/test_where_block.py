@@ -42,6 +42,28 @@ class JimbobSpec(Specification):
         self.assertTrue(result.wasSuccessful())
         self.assertEqual(result.testsRun, 1)
 
+    def test_single_variable_with_function(self):
+        spec_contents = """from nimoy.specification import Specification
+        
+class JimbobSpec(Specification):
+    
+    def test(self):
+        def fn():
+            return [2]
+        with given:
+            a = value_of_a
+            
+        with expect:
+            a == 0
+        
+        with where:
+            value_of_a = fn()
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+        self.assertEqual(result.testsRun, 1)
+
     def test_single_variable_and_fail(self):
         spec_contents = """from nimoy.specification import Specification
         
