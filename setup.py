@@ -17,7 +17,7 @@ with open('README.rst') as read_me:
     long_description = read_me.read()
 
 setup(
-    name='Nimoy',
+    name='nimoy-framework',
     version='0.0.1b1',
     description='A testing and specification framework for Python 3, heavily inspired by the Spock Framework',
     long_description=long_description,
