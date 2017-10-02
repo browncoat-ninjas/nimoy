@@ -3,7 +3,7 @@ from setuptools import setup
 classifiers = [
                   'Development Status :: 4 - Beta',
                   'Intended Audience :: Developers',
-                  'License :: Apache License',
+                  'License :: OSI Approved :: Apache Software License',
                   'Operating System :: POSIX',
                   'Operating System :: MacOS :: MacOS X',
                   'Topic :: Software Development :: Testing',
