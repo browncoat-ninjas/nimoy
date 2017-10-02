@@ -14,7 +14,7 @@ The aim of this project is to port Spock to Python while maintaining the origina
 
 == Features
 
-* Based on `unittest`, so minimal dependencies are required and specifications are recognized by IDEs and report analyzers
+* Based on `unittest`, so minimal dependencies are required and specifications are recognized by IDEs and report analyzers.
 * Reduction of boilerplate code.
 * Write detailed specifications with clear distinction.
 * Auto discovery of specifications.
