@@ -42,14 +42,12 @@ class JimbobSpec(Specification):
         self.assertTrue(result.wasSuccessful())
         self.assertEqual(result.testsRun, 1)
 
-    def test_single_variable_with_function(self):
+    def test_single_variable_with_instance_function(self):
         spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
     def test(self):
-        def fn():
-            return [2]
         with given:
             a = value_of_a
             
@@ -57,7 +55,102 @@ class JimbobSpec(Specification):
             a == 0
         
         with where:
-            value_of_a = fn()
+            value_of_a = self.set_of_numbers()
+            
+    def set_of_numbers(self):
+        return [0, 0 ,0]
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+        self.assertEqual(result.testsRun, 1)
+
+    def test_single_variable_with_instance_function_that_receives_parameters(self):
+        spec_contents = """from nimoy.specification import Specification
+        
+class JimbobSpec(Specification):
+    
+    def test(self):
+        with given:
+            a = value_of_a
+            
+        with expect:
+            a == 0
+        
+        with where:
+            value_of_a = self.set_of_numbers(0)
+    
+    def set_of_numbers(value):
+        return [value, value, value]
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+        self.assertEqual(result.testsRun, 1)
+
+    def test_single_variable_with_static_function(self):
+        spec_contents = """from nimoy.specification import Specification
+        
+class JimbobSpec(Specification):
+    
+    def test(self):
+        with given:
+            a = value_of_a
+            
+        with expect:
+            a == 0
+        
+        with where:
+            value_of_a = JimbobSpec.set_of_numbers()
+    
+    @staticmethod
+    def set_of_numbers(self):
+        return [0, 0 ,0]
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+        self.assertEqual(result.testsRun, 1)
+
+    def test_single_variable_with_static_function_that_receives_parameters(self):
+        spec_contents = """from nimoy.specification import Specification
+        
+class JimbobSpec(Specification):
+    
+    def test(self):
+        with given:
+            a = value_of_a
+            
+        with expect:
+            a == 0
+        
+        with where:
+            value_of_a = JimbobSpec.set_of_numbers(0)
+    
+    @staticmethod       
+    def set_of_numbers(value):
+        return [value, value, value]
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+        self.assertEqual(result.testsRun, 1)
+
+    def test_single_variable_with_external_module_function(self):
+        spec_contents = """import itertools
+from nimoy.specification import Specification
+        
+class JimbobSpec(Specification):
+    
+    def test(self):
+        with given:
+            a = value_of_a
+            
+        with expect:
+            a == 0
+        
+        with where:
+            value_of_a = itertools.permutations()
         """
 
         result = self._run_spec_contents(spec_contents)
