@@ -18,13 +18,14 @@ with open('README.rst') as read_me:
 
 setup(
     name='nimoy-framework',
-    version='0.0.1b1',
+    version='0.0.1b2',
     description='A testing and specification framework for Python 3, heavily inspired by the Spock Framework',
     long_description=long_description,
     url='https://github.com/browncoat-ninjas/nimoy',
     license='Apache License',
     platforms=['unix', 'linux', 'osx'],
     author='Noam Tenne, Yoav Luft',
+    author_email='noam@10ne.org',
     entry_points={'console_scripts': ['nimoy = nimoy.main:main']},
     classifiers=classifiers,
     keywords="test unittest specification",

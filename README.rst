@@ -1,6 +1,6 @@
-====
+=====
 Nimoy
-====
+=====
 A testing and specification framework for Python 3, heavily inspired by the amazing Spock_ Framework.
 
 .. _Spock: http://spockframework.org
@@ -15,8 +15,8 @@ Features
 - See fancy detailed assertion failure reports.
 
 License
---------
+-------
 Apache License 2.0
 
 In memory of Leonard Nimoy 1931-2015
---------
+------------------------------------
