@@ -1,5 +1,6 @@
 import ast
 import _ast
+import copy
 from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer
 from nimoy.runner.exceptions import InvalidFeatureBlockException
 
@@ -114,17 +115,18 @@ class FeatureBlockTransformer(ast.NodeTransformer):
 
         if FeatureBlockTransformer._is_feature_block(with_node):
             block_type = with_node.items[0].context_expr.id
-            FeatureBlockRuleEnforcer(self.spec_metadata, self.feature_name, with_node).enforce_addition_rules(block_type)
-            FeatureBlockTransformer._replace_with_block_context(with_node, block_type)
+            FeatureBlockRuleEnforcer(self.spec_metadata, self.feature_name, with_node).enforce_addition_rules(
+                block_type)
             self.spec_metadata.add_feature_block(self.feature_name, block_type)
 
-            if block_type in [THEN, EXPECT]:
-                ComparisonExpressionTransformer().visit(with_node)
+            if block_type != WHERE:
+                FeatureBlockTransformer._replace_with_block_context(with_node, block_type)
+                if block_type in [THEN, EXPECT]:
+                    ComparisonExpressionTransformer().visit(with_node)
+                return with_node
 
-            if block_type == WHERE:
-                WhereBlockVariables(self.spec_metadata, self.feature_name).register_variables(with_node)
-
-        return with_node
+            return
+            # WhereBlockVariables(self.spec_metadata, self.feature_name).register_variables(with_node)
 
     @staticmethod
     def _is_feature_block(with_node):
@@ -145,3 +147,9 @@ class FeatureBlockTransformer(ast.NodeTransformer):
         with_node.items[0].context_expr = _ast.Call(
             func=_ast.Attribute(value=_ast.Name(id='self', ctx=_ast.Load()), attr='_feature_block_context',
                                 ctx=_ast.Load()), args=[_ast.Str(s=block_type)], keywords=[])
+
+    @staticmethod
+    def _replace_where_block_with_function(with_node):
+        return _ast.FunctionDef(name='where',
+                                args=_ast.arguments(args=[_ast.arg(arg='injectable_values')]),
+                                body=copy.deepcopy(with_node.body))
