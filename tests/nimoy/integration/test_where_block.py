@@ -147,10 +147,10 @@ class JimbobSpec(Specification):
             a = value_of_a
             
         with expect:
-            a == 0
+            len(list(a)) == 2
         
         with where:
-            value_of_a = itertools.permutations()
+            value_of_a = itertools.permutations(range(2), 2)
         """
 
         result = self._run_spec_contents(spec_contents)
