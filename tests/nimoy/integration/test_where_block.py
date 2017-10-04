@@ -104,7 +104,7 @@ class JimbobSpec(Specification):
             value_of_a = JimbobSpec.set_of_numbers()
     
     @staticmethod
-    def set_of_numbers(self):
+    def set_of_numbers():
         return [0, 0 ,0]
         """
 

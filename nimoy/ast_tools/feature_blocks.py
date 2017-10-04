@@ -60,7 +60,7 @@ class WhereBlockFunctions:
                             ctx=_ast.Store()
                         )
                     ],
-                    value=variable_values
+                    value=_ast.List(elts=variable_values, ctx=_ast.Load())
                 ))
 
     @staticmethod
