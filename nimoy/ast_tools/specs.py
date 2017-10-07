@@ -67,7 +67,7 @@ class SpecTransformer(ast.NodeTransformer):
             metadata = SpecMetadata(class_node.name)
             self._register_spec(metadata)
             FeatureRegistrationTransformer(metadata).visit(class_node)
-            FeatureVariables(metadata).inject(class_node)
+            # FeatureVariables(metadata).inject(class_node)
 
         return class_node
 

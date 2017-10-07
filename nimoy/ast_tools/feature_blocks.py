@@ -14,21 +14,25 @@ BLOCK_NAMES = [SETUP, GIVEN, WHEN, THEN, EXPECT, WHERE]
 
 
 class WhereBlockFunctions:
-    @staticmethod
-    def assign_variables_to_the_context(where_function_ast_node):
+    def __init__(self, spec_metadata, feature_name) -> None:
+        super().__init__()
+        self.spec_metadata = spec_metadata
+        self.feature_name = feature_name
+
+    def assign_variables_to_the_context(self, where_function_ast_node):
         block_body = where_function_ast_node.body
         first_expression = block_body[0]
         if isinstance(first_expression, _ast.Assign):
-            WhereBlockFunctions._assign_list_form_variables(where_function_ast_node)
+            self._assign_list_form_variables(where_function_ast_node)
         elif hasattr(first_expression, 'value') and isinstance(first_expression.value, _ast.BinOp):
-            WhereBlockFunctions._assign_matrix_form_variables(where_function_ast_node)
+            self._assign_matrix_form_variables(where_function_ast_node)
 
-    @staticmethod
-    def _assign_list_form_variables(where_function_ast_node):
+    def _assign_list_form_variables(self, where_function_ast_node):
         copy_of_body = copy.deepcopy(where_function_ast_node.body)
         where_function_ast_node.body = []
         for assignment_expression in copy_of_body:
             variable_name = assignment_expression.targets[0].id
+            self.spec_metadata.add_feature_variable(self.feature_name, variable_name)
             variable_values = assignment_expression.value
             where_function_ast_node.body.append(
                 _ast.Assign(
@@ -42,8 +46,7 @@ class WhereBlockFunctions:
                     value=variable_values
                 ))
 
-    @staticmethod
-    def _assign_matrix_form_variables(where_function_ast_node):
+    def _assign_matrix_form_variables(self, where_function_ast_node):
         copy_of_body = copy.deepcopy(where_function_ast_node.body)
         where_function_ast_node.body = []
 
@@ -51,6 +54,7 @@ class WhereBlockFunctions:
 
         # We might be screwing with line numbers here
         for variable_name, variable_values in variables_and_values.items():
+            self.spec_metadata.add_feature_variable(self.feature_name, variable_name)
             where_function_ast_node.body.append(
                 _ast.Assign(
                     targets=[
@@ -160,7 +164,7 @@ class FeatureBlockTransformer(ast.NodeTransformer):
                 return with_node
 
             where_function = FeatureBlockTransformer._replace_where_block_with_function(with_node)
-            WhereBlockFunctions.assign_variables_to_the_context(where_function)
+            WhereBlockFunctions(self.spec_metadata, self.feature_name).assign_variables_to_the_context(where_function)
             return where_function
 
     @staticmethod
