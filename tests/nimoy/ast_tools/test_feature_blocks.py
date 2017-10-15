@@ -1,9 +1,9 @@
 import ast
 import unittest
 from unittest import mock
+import _ast
 from nimoy.ast_tools.feature_blocks import FeatureBlockTransformer
 from nimoy.ast_tools.feature_blocks import FeatureBlockRuleEnforcer
-from nimoy.ast_tools.feature_blocks import WhereBlockFunctions
 from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.runner.exceptions import InvalidFeatureBlockException
 
@@ -141,9 +141,12 @@ class JimbobSpec(Specification):
         spec_feature_body = node.body[1].body[0].body
 
         block_types = ['setup', 'when', 'then', 'expect', 'where']
-        for index, block_type in enumerate(block_types):
+        for index, block_type in enumerate(block_types[:-1]):
             self.assertEqual(spec_feature_body[index].items[0].context_expr.func.attr, '_feature_block_context')
             self.assertEqual(spec_feature_body[index].items[0].context_expr.args[0].s, block_type)
+
+        self.assertEqual(type(spec_feature_body[4]), _ast.FunctionDef)
+        self.assertEqual(spec_feature_body[4].name, 'test_it_where')
 
         self.assertEqual(comparison_expression_transformer.call_count, 2)
         self.assertEqual(comparison_expression_transformer.return_value.visit.call_count, 2)

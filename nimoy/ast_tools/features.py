@@ -21,4 +21,23 @@ class FeatureRegistrationTransformer(ast.NodeTransformer):
             for feature_variable in feature_variables:
                 feature_node.args.args.append(_ast.arg(arg=feature_variable))
                 feature_node.args.defaults.append(_ast.NameConstant(value=None))
+
+        if self._feature_has_a_where_function(feature_name):
+            self._remove_where_function_from_node(feature_name, feature_node)
         return feature_node
+
+    @staticmethod
+    def _remove_where_function_from_node(feature_name, feature_node):
+        where_function = FeatureRegistrationTransformer._locate_where_function_within_feature(feature_name,
+                                                                                              feature_node)
+        feature_node.body.remove(where_function)
+
+    def _feature_has_a_where_function(self, feature_name):
+        return self.spec_metadata.where_functions.get(feature_name)
+
+    @staticmethod
+    def _locate_where_function_within_feature(feature_name, feature_node):
+        def _is_a_where_function(body_element):
+            return hasattr(body_element, 'name') and body_element.name == feature_name + '_where'
+
+        return next(body_element for body_element in feature_node.body if _is_a_where_function(body_element))

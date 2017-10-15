@@ -75,9 +75,9 @@ class JimbobSpec(Specification):
             a == 0
         
         with where:
-            value_of_a = self.set_of_numbers(0)
+            value_of_a = self._set_of_numbers(0)
     
-    def set_of_numbers(value):
+    def _set_of_numbers(self, value):
         return [value, value, value]
         """
 
@@ -97,10 +97,10 @@ class JimbobSpec(Specification):
             a == 0
         
         with where:
-            value_of_a = JimbobSpec.set_of_numbers()
+            value_of_a = JimbobSpec._set_of_numbers()
     
     @staticmethod
-    def set_of_numbers():
+    def _set_of_numbers():
         return [0, 0 ,0]
         """
 
@@ -120,10 +120,10 @@ class JimbobSpec(Specification):
             a == 0
         
         with where:
-            value_of_a = JimbobSpec.set_of_numbers(0)
+            value_of_a = JimbobSpec._set_of_numbers(0)
     
     @staticmethod       
-    def set_of_numbers(value):
+    def _set_of_numbers(value):
         return [value, value, value]
         """
 

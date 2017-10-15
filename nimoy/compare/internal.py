@@ -1,3 +1,4 @@
+import difflib
 from hamcrest import assert_that
 from hamcrest import equal_to
 from hamcrest import is_not
@@ -7,7 +8,6 @@ from hamcrest import greater_than
 from hamcrest import greater_than_or_equal_to
 from hamcrest import is_
 from hamcrest import is_in
-import difflib
 from nimoy.compare.types import Types
 
 
@@ -48,8 +48,8 @@ class Compare:
     def __reformat_error_message(assertion_error, left, right):
         error_message = str(assertion_error)
         if Compare.__is_string(left) and Compare.__is_string(right):
-            d = difflib.Differ()
-            diff = d.compare(left.split('\n'), right.split('\n'))
+            differ = difflib.Differ()
+            diff = differ.compare(left.split('\n'), right.split('\n'))
             error_message = "%sHint:\n%s" % (error_message, '\n'.join(diff))
         return error_message
 

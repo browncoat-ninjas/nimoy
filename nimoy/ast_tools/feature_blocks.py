@@ -1,6 +1,6 @@
 import ast
-import _ast
 import copy
+import _ast
 from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer
 from nimoy.runner.exceptions import InvalidFeatureBlockException
 
@@ -163,8 +163,9 @@ class FeatureBlockTransformer(ast.NodeTransformer):
                     ComparisonExpressionTransformer().visit(with_node)
                 return with_node
 
-            where_function = FeatureBlockTransformer._replace_where_block_with_function(with_node)
+            where_function = self._replace_where_block_with_function(with_node)
             WhereBlockFunctions(self.spec_metadata, self.feature_name).assign_variables_to_the_context(where_function)
+            self.spec_metadata.add_where_function(self.feature_name, copy.deepcopy(where_function))
             return where_function
 
     @staticmethod
@@ -187,14 +188,14 @@ class FeatureBlockTransformer(ast.NodeTransformer):
             func=_ast.Attribute(value=_ast.Name(id='self', ctx=_ast.Load()), attr='_feature_block_context',
                                 ctx=_ast.Load()), args=[_ast.Str(s=block_type)], keywords=[])
 
-    @staticmethod
-    def _replace_where_block_with_function(with_node):
-        return _ast.FunctionDef(name='where',
+    def _replace_where_block_with_function(self, with_node):
+        return _ast.FunctionDef(name=self.feature_name + '_where',
                                 args=_ast.arguments(
-                                    args=[_ast.arg(arg='injectable_values')],
+                                    args=[_ast.arg(arg='self'), _ast.arg(arg='injectable_values')],
                                     kwonlyargs=[],
                                     kw_defaults=[],
                                     defaults=[]
                                 ),
                                 body=copy.deepcopy(with_node.body),
-                                decorator_list=[])
+                                decorator_list=[],
+                                returns=None)
