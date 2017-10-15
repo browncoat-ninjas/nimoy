@@ -142,12 +142,10 @@ class MySpec(Specification):
 [source,bash]
 ----
 $ nimoy
-
 my_feature_method (builtins.MySpec) ... ok
-my_feature_method_1 (builtins.MySpec) ... ok
 
 ----------------------------------------------------------------------
-Ran 2 tests in 0.000s
+Ran 1 test in 0.000s
 
 OK
 ----
