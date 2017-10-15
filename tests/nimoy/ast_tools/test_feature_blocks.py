@@ -1,63 +1,11 @@
 import ast
 import unittest
 from unittest import mock
+import _ast
 from nimoy.ast_tools.feature_blocks import FeatureBlockTransformer
 from nimoy.ast_tools.feature_blocks import FeatureBlockRuleEnforcer
-from nimoy.ast_tools.feature_blocks import WhereBlockVariables
 from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.runner.exceptions import InvalidFeatureBlockException
-
-
-class WhereBlockVariablesTest(unittest.TestCase):
-    def test_single_variable(self):
-        block = """with where:
-    a = [1, 2]
-        """
-        block_node = ast.parse(block, 'exec')
-
-        spec_metadata = get_basic_spec_metadata()
-        WhereBlockVariables(spec_metadata, 'test_it').register_variables(block_node.body[0])
-
-        a_values = spec_metadata.feature_variables['test_it']['a']
-        assert a_values[0].n == 1
-        assert a_values[1].n == 2
-
-    def test_list_form_multi_variables(self):
-        block = """with where:
-    a = [2, 4]
-    b = [1, 3]
-         """
-        block_node = ast.parse(block, 'exec')
-
-        spec_metadata = get_basic_spec_metadata()
-        WhereBlockVariables(spec_metadata, 'test_it').register_variables(block_node.body[0])
-
-        a_values = spec_metadata.feature_variables['test_it']['a']
-        assert a_values[0].n == 2
-        assert a_values[1].n == 4
-
-        b_values = spec_metadata.feature_variables['test_it']['b']
-        assert b_values[0].n == 1
-        assert b_values[1].n == 3
-
-    def test_matrix_form_multi_variables(self):
-        block = """with where:
-    a | b
-    2 | 1
-    4 | 3
-        """
-        block_node = ast.parse(block, 'exec')
-
-        spec_metadata = get_basic_spec_metadata()
-        WhereBlockVariables(spec_metadata, 'test_it').register_variables(block_node.body[0])
-
-        a_values = spec_metadata.feature_variables['test_it']['a']
-        assert a_values[0].n == 2
-        assert a_values[1].n == 4
-
-        b_values = spec_metadata.feature_variables['test_it']['b']
-        assert b_values[0].n == 1
-        assert b_values[1].n == 3
 
 
 class FeatureBlockRuleEnforcerTest(unittest.TestCase):
@@ -193,9 +141,12 @@ class JimbobSpec(Specification):
         spec_feature_body = node.body[1].body[0].body
 
         block_types = ['setup', 'when', 'then', 'expect', 'where']
-        for index, block_type in enumerate(block_types):
+        for index, block_type in enumerate(block_types[:-1]):
             self.assertEqual(spec_feature_body[index].items[0].context_expr.func.attr, '_feature_block_context')
             self.assertEqual(spec_feature_body[index].items[0].context_expr.args[0].s, block_type)
+
+        self.assertEqual(type(spec_feature_body[4]), _ast.FunctionDef)
+        self.assertEqual(spec_feature_body[4].name, 'test_it_where')
 
         self.assertEqual(comparison_expression_transformer.call_count, 2)
         self.assertEqual(comparison_expression_transformer.return_value.visit.call_count, 2)

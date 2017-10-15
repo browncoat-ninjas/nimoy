@@ -1,4 +1,5 @@
 import ast
+import copy
 import _ast
 from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer
 from nimoy.runner.exceptions import InvalidFeatureBlockException
@@ -12,47 +13,85 @@ WHERE = 'where'
 BLOCK_NAMES = [SETUP, GIVEN, WHEN, THEN, EXPECT, WHERE]
 
 
-class WhereBlockVariables:
+class WhereBlockFunctions:
     def __init__(self, spec_metadata, feature_name) -> None:
         super().__init__()
         self.spec_metadata = spec_metadata
         self.feature_name = feature_name
 
-    def register_variables(self, block_ast_node):
-        block_body = block_ast_node.body
+    def assign_variables_to_the_context(self, where_function_ast_node):
+        block_body = where_function_ast_node.body
         first_expression = block_body[0]
         if isinstance(first_expression, _ast.Assign):
-            self._register_list_form_variables(block_body)
+            self._assign_list_form_variables(where_function_ast_node)
         elif hasattr(first_expression, 'value') and isinstance(first_expression.value, _ast.BinOp):
-            self._register_matrix_form_variables(block_body)
+            self._assign_matrix_form_variables(where_function_ast_node)
 
-    def _register_list_form_variables(self, block_body):
-        for assignment_expression in block_body:
+    def _assign_list_form_variables(self, where_function_ast_node):
+        copy_of_body = copy.deepcopy(where_function_ast_node.body)
+        where_function_ast_node.body = []
+        for assignment_expression in copy_of_body:
             variable_name = assignment_expression.targets[0].id
-            variable_values = assignment_expression.value.elts
-            self.spec_metadata.add_feature_variable_values(self.feature_name, variable_name, variable_values)
+            self.spec_metadata.add_feature_variable(self.feature_name, variable_name)
+            variable_values = assignment_expression.value
+            where_function_ast_node.body.append(
+                _ast.Assign(
+                    targets=[
+                        _ast.Subscript(
+                            value=_ast.Name(id='injectable_values', ctx=_ast.Load()),
+                            slice=_ast.Index(value=_ast.Str(s=variable_name)),
+                            ctx=_ast.Store()
+                        )
+                    ],
+                    value=variable_values
+                ))
 
-    def _register_matrix_form_variables(self, block_body):
-        variable_names_row = block_body[0].value
+    def _assign_matrix_form_variables(self, where_function_ast_node):
+        copy_of_body = copy.deepcopy(where_function_ast_node.body)
+        where_function_ast_node.body = []
+
+        variables_and_values = WhereBlockFunctions._get_variables_and_values(copy_of_body)
+
+        # We might be screwing with line numbers here
+        for variable_name, variable_values in variables_and_values.items():
+            self.spec_metadata.add_feature_variable(self.feature_name, variable_name)
+            where_function_ast_node.body.append(
+                _ast.Assign(
+                    targets=[
+                        _ast.Subscript(
+                            value=_ast.Name(id='injectable_values', ctx=_ast.Load()),
+                            slice=_ast.Index(value=_ast.Str(s=variable_name)),
+                            ctx=_ast.Store()
+                        )
+                    ],
+                    value=_ast.List(elts=variable_values, ctx=_ast.Load())
+                ))
+
+    @staticmethod
+    def _get_variables_and_values(copy_of_body):
+        variable_names_row = copy_of_body[0].value
         variable_names = []
-        self._collect_variable_names_recursively(variable_names_row, variable_names)
-
-        for values_row in block_body[1:]:
+        WhereBlockFunctions._collect_variable_names_recursively(variable_names_row, variable_names)
+        variables_and_values = {variable_names[i]: [] for i in range(len(variable_names))}
+        for values_row in copy_of_body[1:]:
             variable_values = []
-            self._collect_variable_values_recursively(values_row.value, variable_values)
+            WhereBlockFunctions._collect_variable_values_recursively(values_row.value, variable_values)
             for index, value in enumerate(variable_values):
-                self.spec_metadata.add_feature_variable_value(self.feature_name, variable_names[index], value)
+                variables_and_values[variable_names[index]].append(value)
+        return variables_and_values
 
-    def _collect_variable_names_recursively(self, binary_op_node, variable_names):
+    @staticmethod
+    def _collect_variable_names_recursively(binary_op_node, variable_names):
         if isinstance(binary_op_node.left, _ast.BinOp):
-            self._collect_variable_names_recursively(binary_op_node.left, variable_names)
+            WhereBlockFunctions._collect_variable_names_recursively(binary_op_node.left, variable_names)
         else:
             variable_names.append(binary_op_node.left.id)
         variable_names.append(binary_op_node.right.id)
 
-    def _collect_variable_values_recursively(self, binary_op_node, variable_values):
+    @staticmethod
+    def _collect_variable_values_recursively(binary_op_node, variable_values):
         if isinstance(binary_op_node.left, _ast.BinOp):
-            self._collect_variable_values_recursively(binary_op_node.left, variable_values)
+            WhereBlockFunctions._collect_variable_values_recursively(binary_op_node.left, variable_values)
         else:
             variable_values.append(binary_op_node.left)
         variable_values.append(binary_op_node.right)
@@ -114,17 +153,20 @@ class FeatureBlockTransformer(ast.NodeTransformer):
 
         if FeatureBlockTransformer._is_feature_block(with_node):
             block_type = with_node.items[0].context_expr.id
-            FeatureBlockRuleEnforcer(self.spec_metadata, self.feature_name, with_node).enforce_addition_rules(block_type)
-            FeatureBlockTransformer._replace_with_block_context(with_node, block_type)
+            FeatureBlockRuleEnforcer(self.spec_metadata, self.feature_name, with_node).enforce_addition_rules(
+                block_type)
             self.spec_metadata.add_feature_block(self.feature_name, block_type)
 
-            if block_type in [THEN, EXPECT]:
-                ComparisonExpressionTransformer().visit(with_node)
+            if block_type != WHERE:
+                FeatureBlockTransformer._replace_with_block_context(with_node, block_type)
+                if block_type in [THEN, EXPECT]:
+                    ComparisonExpressionTransformer().visit(with_node)
+                return with_node
 
-            if block_type == WHERE:
-                WhereBlockVariables(self.spec_metadata, self.feature_name).register_variables(with_node)
-
-        return with_node
+            where_function = self._replace_where_block_with_function(with_node)
+            WhereBlockFunctions(self.spec_metadata, self.feature_name).assign_variables_to_the_context(where_function)
+            self.spec_metadata.add_where_function(self.feature_name, copy.deepcopy(where_function))
+            return where_function
 
     @staticmethod
     def _is_feature_block(with_node):
@@ -145,3 +187,15 @@ class FeatureBlockTransformer(ast.NodeTransformer):
         with_node.items[0].context_expr = _ast.Call(
             func=_ast.Attribute(value=_ast.Name(id='self', ctx=_ast.Load()), attr='_feature_block_context',
                                 ctx=_ast.Load()), args=[_ast.Str(s=block_type)], keywords=[])
+
+    def _replace_where_block_with_function(self, with_node):
+        return _ast.FunctionDef(name=self.feature_name + '_where',
+                                args=_ast.arguments(
+                                    args=[_ast.arg(arg='self'), _ast.arg(arg='injectable_values')],
+                                    kwonlyargs=[],
+                                    kw_defaults=[],
+                                    defaults=[]
+                                ),
+                                body=copy.deepcopy(with_node.body),
+                                decorator_list=[],
+                                returns=None)
