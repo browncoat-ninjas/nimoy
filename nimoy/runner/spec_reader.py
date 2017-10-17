@@ -4,10 +4,9 @@ class SpecReader:
         self.resource_reader = resource_reader
 
     def read(self, spec_locations):
-        spec_contents = []
+        def spec_contents():
+            for spec_file_location in spec_locations:
+                text = self.resource_reader.read(spec_file_location)
+                yield (spec_file_location, text)
 
-        for spec_file_location in spec_locations:
-            text = self.resource_reader.read(spec_file_location)
-            spec_contents.append((spec_file_location, text))
-
-        return spec_contents
+        return spec_contents()

@@ -13,7 +13,8 @@ class TestSpecLoader(unittest.TestCase):
 
         returned_spec_metadata = SpecLoader(ast_chain).load([('/path/to/spec.py', 'class Jimbob:\n    pass')])
 
-        self.assertEqual(returned_spec_metadata[0].name, 'Jimbob')
-        self.assertTrue(returned_spec_metadata[0].owning_module)
+        spec_metadata = next(returned_spec_metadata)
+        self.assertEqual(spec_metadata.name, 'Jimbob')
+        self.assertTrue(spec_metadata.owning_module)
 
         ast_chain.apply.assert_called_once()

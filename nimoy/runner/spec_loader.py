@@ -7,20 +7,19 @@ class SpecLoader:
         self.ast_chain = ast_chain
 
     def load(self, spec_contents):
-        specs = []
+        def specs():
+            for spec_file_location, text in spec_contents:
+                node = ast.parse(text, mode='exec')
 
-        for spec_file_location, text in spec_contents:
-            node = ast.parse(text, mode='exec')
+                metadata_of_specs_from_node = self.ast_chain.apply(node)
+                ast.fix_missing_locations(node)
+                compiled = compile(node, spec_file_location, 'exec')
 
-            metadata_of_specs_from_node = self.ast_chain.apply(node)
-            ast.fix_missing_locations(node)
-            compiled = compile(node, spec_file_location, 'exec')
+                spec_namespace = {}
+                exec(compiled, spec_namespace)
 
-            spec_namespace = {}
-            exec(compiled, spec_namespace)
+                for spec_metadata in metadata_of_specs_from_node:
+                    spec_metadata.set_owning_module(spec_namespace[spec_metadata.name])
+                    yield spec_metadata
 
-            for spec_metadata in metadata_of_specs_from_node:
-                spec_metadata.set_owning_module(spec_namespace[spec_metadata.name])
-                specs.append(spec_metadata)
-
-        return specs
+        return specs()

@@ -9,6 +9,6 @@ class TestSpecReader(unittest.TestCase):
         reader_mock.read.return_value = 'class Jimbob:\n    pass'
 
         spec_contents = SpecReader(reader_mock).read(['/path/to/spec.py'])
-        self.assertEqual(spec_contents[0], ('/path/to/spec.py', 'class Jimbob:\n    pass'))
+        self.assertEqual(next(spec_contents), ('/path/to/spec.py', 'class Jimbob:\n    pass'))
 
         reader_mock.read.assert_called_once()
