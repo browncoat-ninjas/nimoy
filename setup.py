@@ -29,7 +29,7 @@ setup(
     entry_points={'console_scripts': ['nimoy = nimoy.main:main']},
     classifiers=classifiers,
     keywords="test unittest specification",
-    packages=['nimoy', 'nimoy.ast_tools', 'nimoy.context', 'nimoy.runner', 'nimoy.compare'],
+    packages=['nimoy', 'nimoy.assertions', 'nimoy.ast_tools', 'nimoy.context', 'nimoy.runner', 'nimoy.compare'],
     install_requires=['pyhamcrest==1.9'],
 
 )

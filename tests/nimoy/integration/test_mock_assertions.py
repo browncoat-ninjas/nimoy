@@ -20,7 +20,7 @@ class JimbobSpec(Specification):
         result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
-    def test_failed_assertion(self):
+    def test_failed_invocation_count_assertion(self):
         spec_contents = """from unittest import mock
 from nimoy.specification import Specification
 
@@ -32,7 +32,7 @@ class JimbobSpec(Specification):
         with when:
             the_mock.some_method()
         with then:
-            1 * the_mock.some_method()
+            0 * the_mock.some_method()
         """
 
         result = self._run_spec_contents(spec_contents)
@@ -56,7 +56,25 @@ class JimbobSpec(Specification):
         result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
-    def test_failed_assertion_with_arguments(self):
+    def test_failed_invocation_count_assertion_with_arguments(self):
+        spec_contents = """from unittest import mock
+from nimoy.specification import Specification
+
+
+class JimbobSpec(Specification):
+    def test(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            the_mock.some_method('abcd', True)
+        with then:
+            0 * the_mock.some_method('abcd', False)
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertFalse(result.wasSuccessful())
+
+    def test_failed_argument_assertion(self):
         spec_contents = """from unittest import mock
 from nimoy.specification import Specification
 
@@ -69,6 +87,24 @@ class JimbobSpec(Specification):
             the_mock.some_method('abcd', True)
         with then:
             1 * the_mock.some_method('abcd', False)
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertFalse(result.wasSuccessful())
+
+    def test_failed_argument_assertion_with_wildcard(self):
+        spec_contents = """from unittest import mock
+from nimoy.specification import Specification
+
+
+class JimbobSpec(Specification):
+    def test(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            the_mock.some_method('abcd', True)
+        with then:
+            1 * the_mock.some_method(_, False)
         """
 
         result = self._run_spec_contents(spec_contents)
@@ -92,7 +128,7 @@ class JimbobSpec(Specification):
         result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
-    def test_successful_assertion_with_wild_card_parameter(self):
+    def test_successful_assertion_with_wild_card_argument(self):
         spec_contents = """from unittest import mock
 from nimoy.specification import Specification
 
@@ -110,7 +146,7 @@ class JimbobSpec(Specification):
         result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
-    def test_successful_assertion_with_reference_parameter(self):
+    def test_successful_assertion_with_reference_argument(self):
         spec_contents = """from unittest import mock
 from nimoy.specification import Specification
 
