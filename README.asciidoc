@@ -20,6 +20,7 @@ The aim of this project is to port Spock to Python while maintaining the origina
 * Write detailed specifications with clear distinction.
 * Auto discovery of specifications.
 * Write data-driven specifications.
+* Pretty mock behavior assertion.
 * See fancy detailed assertion failure reports.
 
 == Examples
@@ -102,17 +103,6 @@ class MySpec(Specification):
             a == 2
 ----
 
-[source,bash]
-----
-$ nimoy
-
-my_feature_method (builtins.MySpec) ... ok
-
-----------------------------------------------------------------------
-Ran 1 test in 0.000s
-
-OK
-----
 
 === Data-driven Specification
 
@@ -139,15 +129,32 @@ class MySpec(Specification):
             2          | 20         | 40
 ----
 
-[source,bash]
+
+=== Pretty Mock Assertions
+
+When using `unittest` Mocks you can write pretty assertions in the `then` block.
+Mock assertion expressions are written like a mathematical expression with the format of `[NUMBER_OF_INVOCATIONS] * [INVOCATION_TARGET]`.
+
+`[NUMBER_OF_INVOCATIONS]` may be a wildcard when filled in with `\_`.
+Invocation target arguments may also be wildcarded by placing `_`. For example, `class.method(_, 3)`.
+
+.pretty_mock_assertions.py
+[source,python]
 ----
-$ nimoy
-my_feature_method (builtins.MySpec) ... ok
+from unittest import mock
+from nimoy.specification import Specification
 
-----------------------------------------------------------------------
-Ran 1 test in 0.000s
+class MySpec(Specification):
 
-OK
+    def my_feature_method(self):
+        with setup:
+            the_mock = mock.Mock()
+
+        with when:
+            the_mock.some_method('abcd', True)
+
+        with then:
+            1 * the_mock.some_method('abcd', True)
 ----
 
 === More great features to come!
