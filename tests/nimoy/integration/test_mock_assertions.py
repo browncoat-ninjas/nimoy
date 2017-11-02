@@ -1,3 +1,4 @@
+import unittest
 from tests.nimoy.integration.base_integration_test import BaseIntegrationTest
 
 
@@ -50,6 +51,29 @@ class JimbobSpec(Specification):
         with when:
             the_mock.some_method('abcd', True)
         with then:
+            1 * the_mock.some_method('abcd', True)
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
+    @unittest.skip("TODO: Implement spread mock assertions")
+    def test_successful_spread_assertion_with_arguments(self):
+        spec_contents = """from unittest import mock
+from nimoy.specification import Specification
+
+
+class JimbobSpec(Specification):
+    def test(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            the_mock.some_method('abcd', True)
+            the_mock.some_method('efgh', False)
+            the_mock.some_method('abcd', True)
+        with then:
+            1 * the_mock.some_method('abcd', True)
+            1 * the_mock.some_method('efgh', False)
             1 * the_mock.some_method('abcd', True)
         """
 
