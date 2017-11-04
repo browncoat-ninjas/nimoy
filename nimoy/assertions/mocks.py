@@ -9,8 +9,7 @@ class MockAssertions:
                 method + " was to be invoked " + str(number_of_invocations) + " times but was invoked " + str(
                     mocked_method.call_count)) from None
 
-        for index, value in enumerate(mocked_method.call_args[0]):
-            expected_value = args[index]
+        for value, expected_value in zip(mocked_method.call_args[0], args):
             if expected_value != '__nimoy_argument_wildcard' and expected_value != value:
                 raise AssertionError(
                     method + " expected argument " + str(expected_value) + " but was invoked with " + str(
