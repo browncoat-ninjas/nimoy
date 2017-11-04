@@ -12,6 +12,7 @@ Features
 - Write detailed specifications with clear distinction.
 - Auto discovery of specifications.
 - Write data-driven specifications.
+- Pretty mock behavior assertion.
 - See fancy detailed assertion failure reports.
 
 License
