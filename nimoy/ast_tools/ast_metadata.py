@@ -27,9 +27,5 @@ class SpecMetadata:
             self.feature_variables[feature_name] = []
         self.feature_variables[feature_name].append(variable_name)
 
-    def clone_feature(self, original_feature_name, cloned_feature_name):
-        self.features.append(cloned_feature_name)
-        self.feature_blocks[cloned_feature_name] = copy.deepcopy(self.feature_blocks[original_feature_name])
-
     def add_where_function(self, feature_name, where_function):
         self.where_functions[feature_name] = where_function
