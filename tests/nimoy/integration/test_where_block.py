@@ -21,6 +21,25 @@ class JimbobSpec(Specification):
         result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
+    def test_single_variable_with_generator(self):
+        spec_contents = """from nimoy.specification import Specification
+        
+class JimbobSpec(Specification):
+    
+    def test(self):
+        with given:
+            a = value_of_a
+            
+        with expect:
+            a < 10
+        
+        with where:
+            value_of_a = (x for x in range(10))
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
     def test_single_variable_with_single_value(self):
         spec_contents = """from nimoy.specification import Specification
         
@@ -126,6 +145,55 @@ class JimbobSpec(Specification):
     def _set_of_numbers(value):
         return [value, value, value]
         """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
+    def test_single_variable_with_generator_function(self):
+        spec_contents = """from nimoy.specification import Specification
+
+class JimbobSpec(Specification):
+    def test(self):
+        with given:
+            a = value_of_a
+
+        with expect:
+            a < 3
+
+        with where:
+            value_of_a = JimbobSpec._generate_sequence(self)
+
+    def _generate_sequence(self):
+        i = 0
+        while i < 3:
+            yield i
+            i += 1
+            """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
+    def test_single_variable_with_static_generator_function(self):
+        spec_contents = """from nimoy.specification import Specification
+
+class JimbobSpec(Specification):
+    def test(self):
+        with given:
+            a = value_of_a
+
+        with expect:
+          a < 3
+
+        with where:
+            value_of_a = JimbobSpec._generate_sequence()
+
+    @staticmethod
+    def _generate_sequence():
+        i = 0
+        while i < 3:
+            yield i
+            i += 1
+            """
 
         result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
