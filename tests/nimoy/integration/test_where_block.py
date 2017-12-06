@@ -386,6 +386,29 @@ class JimbobSpec(Specification):
         result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
+    def test_stringy_matrix_form_variable_names(self):
+        spec_contents = """from nimoy.specification import Specification
+        
+class JimbobSpec(Specification):
+    
+    def test(self):
+        with given:
+            a = value_of_a
+            b = value_of_b
+            
+        with expect:
+            (a * b) == expected_value
+        
+        with where:
+            "value_of_a" | "value_of_b" | "expected_value"
+            2            | 1            | 2
+            4            | 3            | 12
+            6            | 5            | 30
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
     def test_matrix_form_with_explicit_declaration(self):
         spec_contents = """from nimoy.specification import Specification
         

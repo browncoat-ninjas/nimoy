@@ -86,8 +86,14 @@ class WhereBlockFunctions:
         if isinstance(binary_op_node.left, _ast.BinOp):
             WhereBlockFunctions._collect_variable_names_recursively(binary_op_node.left, variable_names)
         else:
-            variable_names.append(binary_op_node.left.id)
-        variable_names.append(binary_op_node.right.id)
+            variable_names.append(WhereBlockFunctions._get_variable_name(binary_op_node.left))
+        variable_names.append(WhereBlockFunctions._get_variable_name(binary_op_node.right))
+
+    @staticmethod
+    def _get_variable_name(variable_object):
+        if hasattr(variable_object, 's'):
+            return variable_object.s
+        return variable_object.id
 
     @staticmethod
     def _collect_variable_values_recursively(binary_op_node, variable_values):
