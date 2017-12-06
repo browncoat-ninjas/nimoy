@@ -18,7 +18,11 @@ class FeatureRegistrationTransformer(ast.NodeTransformer):
 
         feature_variables = self.spec_metadata.feature_variables.get(feature_name)
         if feature_variables:
+            existing_arg_names = [existing_arg.arg for existing_arg in feature_node.args.args]
+
             for feature_variable in feature_variables:
+                if feature_variable in existing_arg_names:
+                    continue
                 feature_node.args.args.append(_ast.arg(arg=feature_variable))
                 feature_node.args.defaults.append(_ast.NameConstant(value=None))
 
