@@ -21,6 +21,66 @@ class JimbobSpec(Specification):
         result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
+    def test_successful_chained_mock_assertion(self):
+        spec_contents = """from unittest import mock
+from nimoy.specification import Specification
+
+
+class JimbobSpec(Specification):
+    def test(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            the_mock.some_method().then_do_something().or_another()
+        with then:
+            1 * the_mock.some_method()
+            1 * the_mock.some_method.return_value.then_do_something()
+            1 * the_mock.some_method.return_value.then_do_something.return_value.or_another()
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
+    def test_successful_chained_mock_assertion_with_arguments(self):
+        spec_contents = """from unittest import mock
+from nimoy.specification import Specification
+
+
+class JimbobSpec(Specification):
+    def test(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            the_mock.some_method(1).then_do_something("a").or_another(True)
+        with then:
+            1 * the_mock.some_method(1)
+            1 * the_mock.some_method.return_value.then_do_something("a")
+            1 * the_mock.some_method.return_value.then_do_something.return_value.or_another(True)
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
+    def test_failed_chained_mock_assertion_with_arguments(self):
+        spec_contents = """from unittest import mock
+from nimoy.specification import Specification
+
+
+class JimbobSpec(Specification):
+    def test(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            the_mock.some_method(1).then_do_something("a").or_another(True)
+        with then:
+            1 * the_mock.some_method(1)
+            1 * the_mock.some_method.return_value.then_do_something("b")
+            1 * the_mock.some_method.return_value.then_do_something.return_value.or_another(True)
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertFalse(result.wasSuccessful())
+
     def test_failed_invocation_count_assertion(self):
         spec_contents = """from unittest import mock
 from nimoy.specification import Specification
