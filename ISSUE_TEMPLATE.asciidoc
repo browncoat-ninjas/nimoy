@@ -1,0 +1,14 @@
+*Version*: <LIBRARY_VERSION>
+
+*Reproduction Test Case:*
+
+[source,python]
+----
+from nimoy.specification import Specification
+
+...
+----
+
+*Expected Behavior:*
+
+*Actual Behavior:*
