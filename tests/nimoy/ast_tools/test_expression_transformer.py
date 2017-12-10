@@ -37,3 +37,34 @@ class TestComparisonExpressionTransformer(unittest.TestCase):
         self.assertEqual(body_elements[7].value.func.attr, '_compare')
         self.assertEqual(body_elements[8].value.func.attr, '_compare')
         self.assertEqual(body_elements[9].value.func.attr, '_compare')
+
+    def test_if_nested_equality_transforms(self):
+
+        module_definition = """
+if True:
+    1 == 2
+        """
+
+        node = ast.parse(module_definition, mode='exec')
+        ComparisonExpressionTransformer().visit(node)
+
+        body_expression = node.body[0]
+        self.assertTrue(isinstance(body_expression, _ast.If))
+        self.assertTrue(isinstance(body_expression.body[0].value, _ast.Call))
+        self.assertEqual(body_expression.body[0].value.func.attr, '_compare')
+
+    def test_for_nested_equality_transforms(self):
+
+        module_definition = """
+for x in [1, 2]:
+    1 == 2
+        """
+
+        node = ast.parse(module_definition, mode='exec')
+        ComparisonExpressionTransformer().visit(node)
+
+        body_expression = node.body[0]
+        self.assertTrue(isinstance(body_expression, _ast.For))
+        self.assertTrue(isinstance(body_expression.body[0].value, _ast.Call))
+        self.assertEqual(body_expression.body[0].value.func.attr, '_compare')
+
