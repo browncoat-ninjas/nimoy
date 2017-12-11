@@ -224,7 +224,7 @@ class JimbobSpec(Specification):
         """
 
         result = self._run_spec_contents(spec_contents)
-        self.assertIn("Exception: Whaaaaat", result.failures[0][1])
+        self.assertIn("Exception: Whaaaaat", result.errors[0][1])
         self.assertFalse(result.wasSuccessful())
 
     def test_successful_exception_message_assertion(self):

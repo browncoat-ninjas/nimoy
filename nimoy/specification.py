@@ -3,6 +3,7 @@ import copy
 from nimoy.context.feature_block_context import FeatureBlock
 from nimoy.compare.internal import Compare
 from nimoy.assertions.mocks import MockAssertions
+from nimoy.assertions.exceptions import ExceptionAssertions
 
 
 class DataDrivenSpecification(type):
@@ -66,13 +67,5 @@ class Specification(TestCase, metaclass=DataDrivenSpecification):
     def _assert_mock(self, number_of_invocations, mock, method, *args):
         MockAssertions().assert_mock(number_of_invocations, mock, method, *args)
 
-    def _exception_thrown(self, exception_type):
-        if not self.thrown_exceptions:
-            raise AssertionError("Expected an exception of type '%s' to be thrown" % exception_type.__name__)
-
-        thrown_exception = self.thrown_exceptions.pop()
-        if thrown_exception[0] is not exception_type:
-            raise AssertionError("Expected an exception of type '%s' but found '%s'" % (
-                exception_type.__name__, type(thrown_exception[1]).__name__))
-
-        return thrown_exception
+    def _exception_thrown(self, expected_exception_type):
+        return ExceptionAssertions().assert_exception(self.thrown_exceptions, expected_exception_type)
