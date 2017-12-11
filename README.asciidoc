@@ -103,6 +103,24 @@ class MySpec(Specification):
             a == 2
 ----
 
+=== Expecting Exceptions
+
+Use the `thrown` method to make sure that an expected exception has been thrown.
+
+.expected_exceptions_spec.py
+[source,python]
+----
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    def my_feature_method(self):
+        with when:
+            raise Exception('Whaaaaat')
+        with then:
+            err = thrown(Exception)
+            str(err[1]) == 'Whaaaaat'
+----
 
 === Data-driven Specification
 
