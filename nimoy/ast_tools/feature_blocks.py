@@ -1,8 +1,8 @@
 import ast
 import copy
 import _ast
-from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer
-from nimoy.ast_tools.expression_transformer import MockAssertionTransformer
+from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer, MockAssertionTransformer, \
+    ThrownExpressionTransformer
 from nimoy.runner.exceptions import InvalidFeatureBlockException
 
 SETUP = 'setup'
@@ -168,6 +168,7 @@ class FeatureBlockTransformer(ast.NodeTransformer):
                 FeatureBlockTransformer._replace_with_block_context(with_node, block_type)
                 if block_type in [THEN, EXPECT]:
                     ComparisonExpressionTransformer().visit(with_node)
+                    ThrownExpressionTransformer().visit(with_node)
 
                 if block_type == THEN:
                     MockAssertionTransformer().visit(with_node)

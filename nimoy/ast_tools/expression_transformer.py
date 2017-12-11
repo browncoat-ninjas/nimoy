@@ -43,6 +43,41 @@ class ComparisonExpressionTransformer(ast.NodeTransformer):
         return expression_node
 
 
+class ThrownExpressionTransformer(ast.NodeTransformer):
+
+    def visit_Expr(self, expression_node):
+        value = expression_node.value
+        if isinstance(value, _ast.Call):
+            if hasattr(value.func, 'id') and value.func.id == 'thrown':
+                expected_exception = value.args[0]
+                expression_node.value = _ast.Call(
+                    func=_ast.Attribute(
+                        value=_ast.Name(id='self', ctx=_ast.Load()),
+                        attr='_exception_thrown',
+                        ctx=_ast.Load()
+                    ),
+                    args=[expected_exception],
+                    keywords=[]
+                )
+        return expression_node
+
+    def visit_Assign(self, expression_node):
+        value = expression_node.value
+        if isinstance(value, _ast.Call):
+            if hasattr(value.func, 'id') and value.func.id == 'thrown':
+                expected_exception = value.args[0]
+                expression_node.value = _ast.Call(
+                    func=_ast.Attribute(
+                        value=_ast.Name(id='self', ctx=_ast.Load()),
+                        attr='_exception_thrown',
+                        ctx=_ast.Load()
+                    ),
+                    args=[expected_exception],
+                    keywords=[]
+                )
+        return expression_node
+
+
 class MockAssertionTransformer(ast.NodeTransformer):
     def visit_Expr(self, expression_node):
         value = expression_node.value

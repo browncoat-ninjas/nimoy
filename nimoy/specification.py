@@ -52,11 +52,27 @@ class DataDrivenSpecification(type):
 
 
 class Specification(TestCase, metaclass=DataDrivenSpecification):
+
+    def __init__(self, methodName='runTest'):
+        super().__init__(methodName)
+        self.thrown_exceptions = []
+
     def _feature_block_context(self, block_name):
-        return FeatureBlock(block_name)
+        return FeatureBlock(block_name, self.thrown_exceptions)
 
     def _compare(self, left, right, comparison_type_name):
         Compare().compare(left, right, comparison_type_name)
 
     def _assert_mock(self, number_of_invocations, mock, method, *args):
         MockAssertions().assert_mock(number_of_invocations, mock, method, *args)
+
+    def _exception_thrown(self, exception_type):
+        if not self.thrown_exceptions:
+            raise AssertionError("Expected an exception of type '%s' to be thrown" % exception_type.__name__)
+
+        thrown_exception = self.thrown_exceptions.pop()
+        if thrown_exception[0] is not exception_type:
+            raise AssertionError("Expected an exception of type '%s' but found '%s'" % (
+                exception_type.__name__, type(thrown_exception[1]).__name__))
+
+        return thrown_exception
