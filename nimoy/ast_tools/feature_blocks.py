@@ -168,10 +168,10 @@ class FeatureBlockTransformer(ast.NodeTransformer):
                 FeatureBlockTransformer._replace_with_block_context(with_node, block_type)
                 if block_type in [THEN, EXPECT]:
                     ComparisonExpressionTransformer().visit(with_node)
-                    ThrownExpressionTransformer().visit(with_node)
 
                 if block_type == THEN:
                     MockAssertionTransformer().visit(with_node)
+                    ThrownExpressionTransformer().visit(with_node)
                 return with_node
 
             where_function = self._replace_where_block_with_function(with_node)
