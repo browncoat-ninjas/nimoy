@@ -211,6 +211,21 @@ class JimbobSpec(Specification):
         result = self._run_spec_contents(spec_contents)
         self.assertTrue(result.wasSuccessful())
 
+    def test_expected_derived_exception(self):
+        spec_contents = """from nimoy.specification import Specification
+
+class JimbobSpec(Specification):
+
+    def test(self):
+        with when:
+            raise AssertionError('Whaaaaat')
+        with then:
+            thrown(Exception)
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
     def test_unexpected_exception(self):
         spec_contents = """from nimoy.specification import Specification
 

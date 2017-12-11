@@ -4,7 +4,7 @@ class ExceptionAssertions:
             raise AssertionError("Expected an exception of type '%s' to be thrown" % expected_exception_type.__name__)
 
         thrown_exception = thrown_exceptions.pop()
-        if thrown_exception[0] is not expected_exception_type:
+        if not isinstance(thrown_exception[1], expected_exception_type):
             raise AssertionError("Expected an exception of type '%s' but found '%s'" % (
                 expected_exception_type.__name__, thrown_exception[0].__name__))
 

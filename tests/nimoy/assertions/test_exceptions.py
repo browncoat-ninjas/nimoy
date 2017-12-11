@@ -11,9 +11,15 @@ class TestExceptionAssertions(unittest.TestCase):
 
     def test_different_type_of_exception_was_thrown(self):
         with self.assertRaises(AssertionError):
-            ExceptionAssertions().assert_exception([(Exception, None, None)], ArithmeticError)
+            thrown = (Exception, Exception(), None)
+            ExceptionAssertions().assert_exception([thrown], ArithmeticError)
 
     def test_successful_exception_assertion(self):
-        thrown = (ArithmeticError, None, None)
+        thrown = (ArithmeticError, ArithmeticError(), None)
         returned_exception = ExceptionAssertions().assert_exception([thrown], ArithmeticError)
+        self.assertEqual(returned_exception, thrown)
+
+    def test_successful_derived_exception_assertion(self):
+        thrown = (ArithmeticError, ArithmeticError(), None)
+        returned_exception = ExceptionAssertions().assert_exception([thrown], Exception)
         self.assertEqual(returned_exception, thrown)
