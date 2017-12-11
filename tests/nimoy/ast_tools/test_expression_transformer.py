@@ -1,12 +1,11 @@
 import unittest
 import ast
 import _ast
-from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer
+from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer, ThrownExpressionTransformer
 
 
 class TestComparisonExpressionTransformer(unittest.TestCase):
     def test_equality_transforms(self):
-
         module_definition = """1 == 2
 1 != 2
 1 < 2
@@ -39,7 +38,6 @@ class TestComparisonExpressionTransformer(unittest.TestCase):
         self.assertEqual(body_elements[9].value.func.attr, '_compare')
 
     def test_if_nested_equality_transforms(self):
-
         module_definition = """
 if True:
     1 == 2
@@ -54,7 +52,6 @@ if True:
         self.assertEqual(body_expression.body[0].value.func.attr, '_compare')
 
     def test_for_nested_equality_transforms(self):
-
         module_definition = """
 for x in [1, 2]:
     1 == 2
@@ -68,3 +65,27 @@ for x in [1, 2]:
         self.assertTrue(isinstance(body_expression.body[0].value, _ast.Call))
         self.assertEqual(body_expression.body[0].value.func.attr, '_compare')
 
+
+class TestThrownExpressionTransformer(unittest.TestCase):
+
+    def test_single_thrown_call_is_transformed(self):
+        module_definition = "thrown(ArithmeticError)"
+
+        node = ast.parse(module_definition, mode='exec')
+        ThrownExpressionTransformer().visit(node)
+
+        thrown_expression = node.body[0].value
+        self.assertTrue(isinstance(thrown_expression, _ast.Call))
+        self.assertEqual(thrown_expression.func.attr, '_exception_thrown')
+        self.assertEqual(thrown_expression.args[0].id, 'ArithmeticError')
+
+    def test_assigned_thrown_call_is_transformed(self):
+        module_definition = "ex = thrown(ArithmeticError)"
+
+        node = ast.parse(module_definition, mode='exec')
+        ThrownExpressionTransformer().visit(node)
+
+        thrown_expression = node.body[0].value
+        self.assertTrue(isinstance(thrown_expression, _ast.Call))
+        self.assertEqual(thrown_expression.func.attr, '_exception_thrown')
+        self.assertEqual(thrown_expression.args[0].id, 'ArithmeticError')

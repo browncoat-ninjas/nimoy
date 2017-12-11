@@ -195,3 +195,115 @@ class JimbobSpec(Specification):
 
         with self.assertRaises(InvalidFeatureBlockException):
             self._run_spec_contents(spec_contents)
+
+    def test_expected_exception(self):
+        spec_contents = """from nimoy.specification import Specification
+
+class JimbobSpec(Specification):
+
+    def test(self):
+        with when:
+            raise Exception('Whaaaaat')
+        with then:
+            thrown(Exception)
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
+    def test_expected_derived_exception(self):
+        spec_contents = """from nimoy.specification import Specification
+
+class JimbobSpec(Specification):
+
+    def test(self):
+        with when:
+            raise AssertionError('Whaaaaat')
+        with then:
+            thrown(Exception)
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
+    def test_unexpected_exception(self):
+        spec_contents = """from nimoy.specification import Specification
+
+class JimbobSpec(Specification):
+
+    def test(self):
+        with when:
+            raise Exception('Whaaaaat')
+        with then:
+            pass
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertIn("Exception: Whaaaaat", result.errors[0][1])
+        self.assertFalse(result.wasSuccessful())
+
+    def test_successful_exception_message_assertion(self):
+        spec_contents = """from nimoy.specification import Specification
+
+class JimbobSpec(Specification):
+
+    def test(self):
+        with when:
+            raise Exception('Whaaaaat')
+        with then:
+            err = thrown(Exception)
+            str(err[1]) == 'Whaaaaat'
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertTrue(result.wasSuccessful())
+
+    def test_failed_exception_type_assertion(self):
+        spec_contents = """from nimoy.specification import Specification
+
+class JimbobSpec(Specification):
+
+    def test(self):
+        with when:
+            raise Exception('Whaaaaat')
+        with then:
+            err = thrown(ArithmeticError)
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertIn("'ArithmeticError' but found 'Exception'", result.failures[0][1])
+        self.assertFalse(result.wasSuccessful())
+
+    def test_failed_exception_message_assertion(self):
+        spec_contents = """from nimoy.specification import Specification
+
+class JimbobSpec(Specification):
+
+    def test(self):
+        with when:
+            raise Exception('Whaaaaat')
+        with then:
+            err = thrown(Exception)
+            str(err[1]) == 'Moo'
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertIn("Expected: 'Moo'", result.failures[0][1])
+        self.assertFalse(result.wasSuccessful())
+
+    def test_unfulfilled_exception_expectation(self):
+        spec_contents = """from nimoy.specification import Specification
+
+class JimbobSpec(Specification):
+
+    def test(self):
+        with when:
+            pass
+        with then:
+            err = thrown(Exception)
+            err.message == 'Whaaaaat'
+        """
+
+        result = self._run_spec_contents(spec_contents)
+        self.assertIn("'Exception' to be thrown", result.failures[0][1])
+        self.assertFalse(result.wasSuccessful())

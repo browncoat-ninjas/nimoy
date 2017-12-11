@@ -3,6 +3,7 @@ import copy
 from nimoy.context.feature_block_context import FeatureBlock
 from nimoy.compare.internal import Compare
 from nimoy.assertions.mocks import MockAssertions
+from nimoy.assertions.exceptions import ExceptionAssertions
 
 
 class DataDrivenSpecification(type):
@@ -52,11 +53,19 @@ class DataDrivenSpecification(type):
 
 
 class Specification(TestCase, metaclass=DataDrivenSpecification):
+
+    def __init__(self, methodName='runTest'):
+        super().__init__(methodName)
+        self.thrown_exceptions = []
+
     def _feature_block_context(self, block_name):
-        return FeatureBlock(block_name)
+        return FeatureBlock(block_name, self.thrown_exceptions)
 
     def _compare(self, left, right, comparison_type_name):
         Compare().compare(left, right, comparison_type_name)
 
     def _assert_mock(self, number_of_invocations, mock, method, *args):
         MockAssertions().assert_mock(number_of_invocations, mock, method, *args)
+
+    def _exception_thrown(self, expected_exception_type):
+        return ExceptionAssertions().assert_exception(self.thrown_exceptions, expected_exception_type)
