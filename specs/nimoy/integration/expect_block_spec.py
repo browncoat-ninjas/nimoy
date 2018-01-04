@@ -1,8 +1,9 @@
-from specs.nimoy.integration.base_integration import BaseIntegration
+from nimoy.specification import Specification
+from nimoy.spec_runner import SpecRunner
 from nimoy.runner.exceptions import InvalidFeatureBlockException
 
 
-class ExpectBlocksSpec(BaseIntegration):
+class ExpectBlocksSpec(Specification):
     def successful_given(self):
         with given:
             spec_contents = """from nimoy.specification import Specification
@@ -388,3 +389,6 @@ class JimbobSpec(Specification):
         with then:
             "'Exception' to be thrown" in result.failures[0][1]
             result.wasSuccessful() == False
+
+    def _run_spec_contents(self, spec_contents):
+        return SpecRunner._run_on_contents([('/fake/path.py', spec_contents)])
