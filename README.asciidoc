@@ -25,7 +25,7 @@ The aim of this project is to port Spock to Python while maintaining the origina
 
 == Examples
 
-Nimoy will pick up on any module ending with `_spec.py` and will treat any class that extends `nimoy.specification.Specification` as a Specification class.
+Nimoy will pick up on any module ending with `_spec.py` and will treat any class that ends with the word `Spec` as a Specification class.
 
 === Simple Specification
 

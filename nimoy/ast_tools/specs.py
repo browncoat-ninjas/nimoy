@@ -11,9 +11,9 @@ class SpecTransformer(ast.NodeTransformer):
 
     def visit_ClassDef(self, class_node):
 
-        class_extends_spec = any(SpecTransformer._extends_spec(class_base) for class_base in class_node.bases)
+        class_is_spec = class_node.name.endswith('Spec')
 
-        if class_extends_spec:
+        if class_is_spec:
             metadata = SpecMetadata(class_node.name)
             self._register_spec(metadata)
             FeatureRegistrationTransformer(metadata).visit(class_node)
@@ -32,13 +32,6 @@ class SpecTransformer(ast.NodeTransformer):
                     class_node.body.insert(index_to_insert_where, where_function_to_insert)
 
         return class_node
-
-    @staticmethod
-    def _extends_spec(class_base):
-        if not isinstance(class_base, _ast.Name):
-            return False
-
-        return class_base.id == 'Specification'
 
     def _register_spec(self, metadata):
         self.spec_metadata.append(metadata)
