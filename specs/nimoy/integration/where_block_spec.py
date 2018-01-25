@@ -1,9 +1,11 @@
-from tests.nimoy.integration.base_integration_test import BaseIntegrationTest
+from nimoy.specification import Specification
+from nimoy.spec_runner import SpecRunner
 
 
-class TestWhereBlocks(BaseIntegrationTest):
-    def test_single_variable(self):
-        spec_contents = """from nimoy.specification import Specification
+class WhereBlocksSpec(Specification):
+    def single_variable(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -16,13 +18,16 @@ class JimbobSpec(Specification):
         
         with where:
             value_of_a = [2, 4, 6, 8]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_with_explicit_declaration(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_with_explicit_declaration(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -35,13 +40,16 @@ class JimbobSpec(Specification):
         
         with where:
             value_of_a = [2, 4, 6, 8]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_with_generator(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_with_generator(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -54,13 +62,16 @@ class JimbobSpec(Specification):
         
         with where:
             value_of_a = (x for x in range(10))
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_with_single_value(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_with_single_value(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -73,13 +84,16 @@ class JimbobSpec(Specification):
         
         with where:
             value_of_a = [2]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_with_instance_function(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_with_instance_function(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -95,13 +109,16 @@ class JimbobSpec(Specification):
             
     def set_of_numbers(self):
         return [0, 0 ,0]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_with_instance_function_that_receives_parameters(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_with_instance_function_that_receives_parameters(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -117,13 +134,16 @@ class JimbobSpec(Specification):
     
     def _set_of_numbers(self, value):
         return [value, value, value]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_with_static_function(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_with_static_function(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -140,13 +160,16 @@ class JimbobSpec(Specification):
     @staticmethod
     def _set_of_numbers():
         return [0, 0 ,0]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_with_static_function_that_receives_parameters(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_with_static_function_that_receives_parameters(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -163,13 +186,16 @@ class JimbobSpec(Specification):
     @staticmethod       
     def _set_of_numbers(value):
         return [value, value, value]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_with_generator_function(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_with_generator_function(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
 
 class JimbobSpec(Specification):
     def test(self):
@@ -189,11 +215,14 @@ class JimbobSpec(Specification):
             i += 1
             """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_with_static_generator_function(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_with_static_generator_function(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
 
 class JimbobSpec(Specification):
     def test(self):
@@ -214,10 +243,12 @@ class JimbobSpec(Specification):
             i += 1
             """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_with_external_module_function(self):
+    def single_variable_with_external_module_function(self):
         spec_contents = """import itertools
 from nimoy.specification import Specification
         
@@ -232,13 +263,16 @@ class JimbobSpec(Specification):
         
         with where:
             value_of_a = itertools.permutations(range(2), 2)
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_single_variable_and_fail(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_and_fail(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -251,13 +285,16 @@ class JimbobSpec(Specification):
         
         with where:
             value_of_a = [4, 3]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertFalse(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == False
 
-    def test_single_variable_with_single_value_and_fail(self):
-        spec_contents = """from nimoy.specification import Specification
+    def single_variable_with_single_value_and_fail(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -270,13 +307,16 @@ class JimbobSpec(Specification):
         
         with where:
             value_of_a = [3]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertFalse(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == False
 
-    def test_list_form_multi_variables(self):
-        spec_contents = """from nimoy.specification import Specification
+    def list_form_multi_variables(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -292,13 +332,16 @@ class JimbobSpec(Specification):
             value_of_a = [2, 4, 6]
             value_of_b = [1, 3, 5]
             expected_value = [2, 12, 30]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_list_form_multi_variables_with_a_single_value(self):
-        spec_contents = """from nimoy.specification import Specification
+    def list_form_multi_variables_with_a_single_value(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -314,13 +357,16 @@ class JimbobSpec(Specification):
             value_of_a = [2]
             value_of_b = [1]
             expected_value = [2]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_list_form_multi_variables_and_fail(self):
-        spec_contents = """from nimoy.specification import Specification
+    def list_form_multi_variables_and_fail(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -336,13 +382,16 @@ class JimbobSpec(Specification):
             value_of_a = [1, 2]
             value_of_b = [1, 1]
             expected_value = [1, 5]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertFalse(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == False
 
-    def test_list_form_multi_variables_with_a_single_value_and_fail(self):
-        spec_contents = """from nimoy.specification import Specification
+    def list_form_multi_variables_with_a_single_value_and_fail(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -358,13 +407,16 @@ class JimbobSpec(Specification):
             value_of_a = [1]
             value_of_b = [1]
             expected_value = [5]
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertFalse(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == False
 
-    def test_matrix_form_multi_variables(self):
-        spec_contents = """from nimoy.specification import Specification
+    def matrix_form_multi_variables(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -381,13 +433,16 @@ class JimbobSpec(Specification):
             2          | 1          | 2
             4          | 3          | 12
             6          | 5          | 30
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_stringy_matrix_form_variable_names(self):
-        spec_contents = """from nimoy.specification import Specification
+    def stringy_matrix_form_variable_names(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -404,13 +459,16 @@ class JimbobSpec(Specification):
             2            | 1            | 2
             4            | 3            | 12
             6            | 5            | 30
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_matrix_form_with_explicit_declaration(self):
-        spec_contents = """from nimoy.specification import Specification
+    def matrix_form_with_explicit_declaration(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -426,13 +484,16 @@ class JimbobSpec(Specification):
             value_of_a | value_of_b | expected_value
             2          | 1          | 2
             
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_matrix_form_multi_variables_with_a_single_value(self):
-        spec_contents = """from nimoy.specification import Specification
+    def matrix_form_multi_variables_with_a_single_value(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -447,13 +508,16 @@ class JimbobSpec(Specification):
         with where:
             value_of_a | value_of_b | expected_value
             2          | 1          | 2
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertTrue(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
 
-    def test_matrix_form_multi_variables_and_fail(self):
-        spec_contents = """from nimoy.specification import Specification
+    def matrix_form_multi_variables_and_fail(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -469,13 +533,16 @@ class JimbobSpec(Specification):
             value_of_a | value_of_b | expected_value
             1          | 1          | 1
             2          | 1          | 10
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertFalse(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == False
 
-    def test_matrix_form_multi_variables_with_a_single_value_and_fail(self):
-        spec_contents = """from nimoy.specification import Specification
+    def matrix_form_multi_variables_with_a_single_value_and_fail(self):
+        with given:
+            spec_contents = """from nimoy.specification import Specification
         
 class JimbobSpec(Specification):
     
@@ -490,7 +557,12 @@ class JimbobSpec(Specification):
         with where:
             value_of_a | value_of_b | expected_value
             2          | 1          | 10
-        """
+            """
 
-        result = self._run_spec_contents(spec_contents)
-        self.assertFalse(result.wasSuccessful())
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == False
+
+    def _run_spec_contents(self, spec_contents):
+        return SpecRunner._run_on_contents([('/fake/path.py', spec_contents)])
