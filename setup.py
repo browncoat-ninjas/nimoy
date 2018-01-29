@@ -30,6 +30,6 @@ setup(
     classifiers=classifiers,
     keywords="test unittest specification",
     packages=['nimoy', 'nimoy.assertions', 'nimoy.ast_tools', 'nimoy.context', 'nimoy.runner', 'nimoy.compare'],
-    install_requires=['pyhamcrest==1.9'],
+    install_requires=['pyhamcrest==1.9.0'],
 
 )
