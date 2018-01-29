@@ -12,3 +12,4 @@ class Types(Enum):
     IS_NOT = 8
     IN = 9
     NOT_IN = 10
+    MATCHES_REGEXP = 11

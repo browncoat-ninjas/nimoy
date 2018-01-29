@@ -1,3 +1,5 @@
+import re
+
 from nimoy.specification import Specification
 from nimoy.compare.internal import Compare
 from nimoy.compare.types import Types
@@ -25,3 +27,4 @@ class InternalComparatorSpec(Specification):
             True | False | Types.IS_NOT.name
             1 | [1, 2] | Types.IN.name
             1 | [3, 2] | Types.NOT_IN.name
+            'The quick brown fox' | re.compile('brown') | Types.MATCHES_REGEXP.name

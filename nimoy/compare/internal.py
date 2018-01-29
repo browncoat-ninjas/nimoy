@@ -8,6 +8,7 @@ from hamcrest import greater_than
 from hamcrest import greater_than_or_equal_to
 from hamcrest import is_
 from hamcrest import is_in
+from hamcrest import matches_regexp
 from nimoy.compare.types import Types
 
 
@@ -41,6 +42,8 @@ class Compare:
             assert_that(left, is_in(right))
         elif comparison_type == Types.NOT_IN:
             assert_that(left, is_not(is_in(right)))
+        elif comparison_type == Types.MATCHES_REGEXP:
+            assert_that(left, matches_regexp(right))
         else:
             raise Exception()
 
