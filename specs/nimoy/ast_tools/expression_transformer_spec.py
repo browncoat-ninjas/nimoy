@@ -18,6 +18,7 @@ class ComparisonExpressionTransformerSpec(Specification):
 1 is not 2
 1 in 2
 1 not in 2
+'The quick brown fox' @ '.+brown.+'
             """
             node = ast.parse(module_definition, mode='exec')
 
@@ -27,8 +28,6 @@ class ComparisonExpressionTransformerSpec(Specification):
         with then:
             body_elements = node.body
             all([isinstance(body_element.value, _ast.Call) for body_element in body_elements]) == True
-            all([body_element.value.args[0].n == 1 for body_element in body_elements]) == True
-            all([body_element.value.args[1].n == 2 for body_element in body_elements]) == True
             all([body_element.value.func.attr == '_compare' for body_element in body_elements]) == True
 
     def nested_if_equality_is_transformed(self):

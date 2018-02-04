@@ -17,17 +17,27 @@ class ComparisonExpressionTransformer(ast.NodeTransformer):
             _ast.IsNot: Types.IS_NOT,
             _ast.In: Types.IN,
             _ast.NotIn: Types.NOT_IN,
+            _ast.MatMult: Types.MATCHES_REGEXP,
         }
 
     def visit_Expr(self, expression_node):
         value = expression_node.value
         if not isinstance(value, _ast.Compare):
-            return expression_node
+            if isinstance(value, _ast.BinOp):
+                if hasattr(value, 'op') and not isinstance(value.op, _ast.MatMult):
+                    return expression_node
+            else:
+                return expression_node
+
+        left_value = value.left
 
         # TODO: Support multiple comparators (1 < 2 < 3). This may be tricky because one expression of multiple
-        # comparators will translate to multiple unittest assert expressions, which will cause a difference in line
-        # numbers
-        comparison_operation = value.ops[0]
+        if hasattr(value, 'op'):
+            comparison_operation = value.op
+            right_value = value.right
+        else:
+            comparison_operation = value.ops[0]
+            right_value = value.comparators[0]
         comparison_operation_type = type(comparison_operation)
         internal_comparison_type = self.comparator_methods[comparison_operation_type]
 
@@ -37,7 +47,7 @@ class ComparisonExpressionTransformer(ast.NodeTransformer):
                 attr='_compare',
                 ctx=_ast.Load()
             ),
-            args=[value.left, value.comparators[0], _ast.Str(s=internal_comparison_type.name)],
+            args=[left_value, right_value, _ast.Str(s=internal_comparison_type.name)],
             keywords=[]
         )
         return expression_node
