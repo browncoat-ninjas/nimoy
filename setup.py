@@ -18,7 +18,7 @@ with open('README.rst') as read_me:
 
 setup(
     name='nimoy-framework',
-    version='0.0.1b5',
+    version='0.0.1b6',
     description='A testing and specification framework for Python 3, heavily inspired by the Spock Framework',
     long_description=long_description,
     url='https://github.com/browncoat-ninjas/nimoy',
