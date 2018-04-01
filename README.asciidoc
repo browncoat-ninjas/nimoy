@@ -175,6 +175,23 @@ class MySpec(Specification):
             1 * the_mock.some_method('abcd', True)
 ----
 
+=== Syntactic Sugar
+
+Different routine operations have shorthands to make your specifications cleaner and more readable
+
+.syntatic_sugar.py
+[source,python]
+----
+from unittest import mock
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    def regex_assertion(self):
+        with expect:
+            'The quick brown fox' @ '.+brown.+' # This is valid regex matching!
+----
+
 === More great features to come!
 
 == License
