@@ -23,6 +23,13 @@ The aim of this project is to port Spock to Python while maintaining the origina
 * Pretty mock behavior assertion.
 * See fancy detailed assertion failure reports.
 
+== Install
+
+[source,bash]
+----
+pip install nimoy-framework
+----
+
 == Examples
 
 Nimoy will pick up on any module ending with `_spec.py` and will treat any class that ends with the word `Spec` as a Specification class.
