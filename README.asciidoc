@@ -189,7 +189,6 @@ Different routine operations have shorthands to make your specifications cleaner
 .syntatic_sugar.py
 [source,python]
 ----
-from unittest import mock
 from nimoy.specification import Specification
 
 class MySpec(Specification):
