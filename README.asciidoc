@@ -194,6 +194,20 @@ class MySpec(Specification):
 
 === More great features to come!
 
+== Contribution
+
+Is most welcome!
+
+Nimoy is branched with the standard https://github.com/nvie/gitflow[git flow] conventions so mainline development will be merged to `develop`; features and PRs to feature branches.
+
+=== All Code Modifications
+
+Should pass the automated build and be backed up by Nimoy specifications.
+
+=== New Features
+
+Should include at least one documented example.
+
 == License
 
 Apache License 2.0
