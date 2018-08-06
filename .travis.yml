@@ -1,7 +1,16 @@
 language: python
-python:
-  - "3.6"
-  - "3.7"
+
+matrix:
+  include:
+    - python: 3.3
+    - python: 3.4
+    - python: 3.5
+    - python: 3.5
+    - python: 3.6
+    - python: 3.7
+      dist: xenial
+      sudo: true
+
 install:
   - pip install -U setuptools pip
   - python setup.py install
