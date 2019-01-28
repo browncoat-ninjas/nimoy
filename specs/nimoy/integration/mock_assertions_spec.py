@@ -283,5 +283,51 @@ class JimbobSpec(Specification):
         with then:
             result.wasSuccessful() == True
 
+    def successful_assertion_with_right_shift(self):
+        with given:
+            spec_contents = """from unittest import mock
+from nimoy.specification import Specification
+
+
+class JimbobSpec(Specification):
+    def test(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            the_mock.some_method() >> 5
+        with then:
+            the_mock.some_method() == 5
+            the_mock.some_method() == 5
+            the_mock.some_method() == 5
+            """
+
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
+
+    def successful_assertion_with_left_shift(self):
+        with given:
+            spec_contents = """from unittest import mock
+from nimoy.specification import Specification
+
+
+class JimbobSpec(Specification):
+    def test(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            the_mock.some_method() << [5, 6, 7]
+        with then:
+            the_mock.some_method() == 5
+            the_mock.some_method() == 6
+            the_mock.some_method() == 7
+            """
+
+        with when:
+            result = self._run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
+
     def _run_spec_contents(self, spec_contents):
         return SpecRunner._run_on_contents([('/fake/path.py', spec_contents)])
