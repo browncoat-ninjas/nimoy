@@ -71,6 +71,29 @@ class ThrownExpressionTransformer(ast.NodeTransformer):
         return expression_node
 
 
+class MockBehaviorExpressionTransformer(ast.NodeTransformer):
+    def visit_Expr(self, expression_node):
+        value = expression_node.value
+        if not isinstance(value, _ast.BinOp) or not (
+                isinstance(value.op, _ast.RShift) or isinstance(value.op, _ast.LShift)):
+            return expression_node
+
+        mock_attribute = 'return_value'
+        if isinstance(value.op, _ast.LShift):
+            mock_attribute = 'side_effect'
+
+        return _ast.Assign(
+            targets=[
+                _ast.Attribute(
+                    attr=mock_attribute,
+                    ctx=_ast.Store(),
+                    value=value.left.func
+                )
+            ],
+            value=value.right
+        )
+
+
 class MockAssertionTransformer(ast.NodeTransformer):
     def visit_Expr(self, expression_node):
         value = expression_node.value
