@@ -1,5 +1,5 @@
-from nimoy.specification import Specification
 from nimoy.spec_runner import SpecRunner
+from nimoy.specification import Specification
 
 
 class MockAssertionsSpec(Specification):
@@ -319,8 +319,8 @@ class JimbobSpec(Specification):
         with when:
             the_mock.some_method() >> 5
         with then:
-            the_mock.some_method() == 5
-            the_mock.some_method() == 5
+            the_mock.some_method() == 6
+            the_mock.some_method() == 6
             """
 
         with when:
