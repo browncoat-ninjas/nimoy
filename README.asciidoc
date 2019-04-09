@@ -147,6 +147,55 @@ class MySpec(Specification):
             2          | 20         | 40
 ----
 
+=== Pretty Mock Response Staging
+
+When using `unittest` Mocks you can stage the return values using binary operators.
+
+Use the right shift to always return the same value (`return_value`):
+
+.pretty_mock_response_staging_return_value.py
+[source,python]
+----
+from unittest import mock
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    def my_feature_method(self):
+        with setup:
+            the_mock = mock.Mock()
+
+        with when:
+            the_mock.some_method() >> 5
+
+        with then:
+            the_mock.some_method() == 5
+            the_mock.some_method() == 5
+            the_mock.some_method() == 5
+----
+
+Or use the left shift operator to return a different value on every invocation (`side_effect`):
+
+.pretty_mock_response_staging_side_effect.py
+[source,python]
+----
+from unittest import mock
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    def my_feature_method(self):
+        with setup:
+            the_mock = mock.Mock()
+
+        with when:
+            the_mock.some_method() << [5, 6, 7]
+
+        with then:
+            the_mock.some_method() == 5
+            the_mock.some_method() == 6
+            the_mock.some_method() == 7
+----
 
 === Pretty Mock Assertions
 
