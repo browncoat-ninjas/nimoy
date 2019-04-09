@@ -1,7 +1,8 @@
 import ast
 import _ast
 from nimoy.specification import Specification
-from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer, ThrownExpressionTransformer
+from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer, ThrownExpressionTransformer, \
+    MockBehaviorExpressionTransformer
 
 
 class ComparisonExpressionTransformerSpec(Specification):
@@ -94,3 +95,41 @@ class ThrownExpressionTransformerSpec(Specification):
             isinstance(thrown_expression, _ast.Call) == True
             thrown_expression.func.attr == '_exception_thrown'
             thrown_expression.args[0].id == 'ArithmeticError'
+
+
+class MockBehaviorExpressionTransformerSpec(Specification):
+
+    def right_shift_is_transformed_to_return_value(self):
+        with setup:
+            module_definition = "the_mock.some_method() >> 5"
+            node = ast.parse(module_definition, mode='exec')
+
+        with when:
+            MockBehaviorExpressionTransformer().visit(node)
+
+        with then:
+            body_element = node.body[0]
+            isinstance(body_element, _ast.Assign)
+            body_element.value.n == 5
+            body_element.targets[0].attr == 'return_value'
+            isinstance(body_element.targets[0].ctx, _ast.Store)
+            body_element.targets[0].value.value.id == 'the_mock'
+
+    def left_shift_is_transformed_to_side_effect(self):
+        with setup:
+            module_definition = "the_mock.some_method() << [5, 6, 7]"
+            node = ast.parse(module_definition, mode='exec')
+
+        with when:
+            MockBehaviorExpressionTransformer().visit(node)
+
+        with then:
+            body_element = node.body[0]
+            isinstance(body_element, _ast.Assign)
+            isinstance(body_element.value, _ast.List)
+            body_element.value.elts[0].n == 5
+            body_element.value.elts[1].n == 6
+            body_element.value.elts[2].n == 7
+            body_element.targets[0].attr == 'side_effect'
+            isinstance(body_element.targets[0].ctx, _ast.Store)
+            body_element.targets[0].value.value.id == 'the_mock'
