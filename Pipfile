@@ -3,6 +3,9 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[scripts]
+test = "python -m nimoy.main"
+
 [dev-packages]
 twine = "*"
 
