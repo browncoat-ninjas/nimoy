@@ -8,7 +8,7 @@ matrix:
       sudo: true
 
 install:
-  - pip install -U setuptools pip
-  - python setup.py install
+  - pip install -U setuptools pip pipenv
+  - pipenv install
 script:
-  - python3 -m nimoy.main ./
+  - pipenv run test
