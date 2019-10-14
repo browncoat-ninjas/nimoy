@@ -15,7 +15,8 @@ Bug reports in form of actual test cases are best as they provide the quickest p
 To contribute new features or bug fixes:
 
 . Fork and clone the repository
+. Use `pipenv` to download the dependencies using: `pipenv install`
 . Apply your changes, including test cases that prove them
-. Run pylint to make sure that the quality of the code hasn't deteriorated: `find nimoy -name "*.py" | xargs pylint`
-. Run all tests and make sure none have been broken: `python3 -m unittest discover -s ./tests/nimoy -v`
+. Run `pylint` to make sure that the quality of the code hasn't deteriorated: `find nimoy -name "*.py" | xargs pylint`
+. Run all tests and make sure none have been broken: `pipenv run test`
 . Submit the changes using a pull request. Make sure you provide as much detail as possible
