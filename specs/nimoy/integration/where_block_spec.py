@@ -1,5 +1,5 @@
 from nimoy.specification import Specification
-from nimoy.spec_runner import SpecRunner
+from specs.nimoy.runner_helper import run_spec_contents
 
 
 class WhereBlocksSpec(Specification):
@@ -21,7 +21,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -43,7 +43,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -65,7 +65,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -87,7 +87,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -112,7 +112,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -137,7 +137,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -163,7 +163,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -189,7 +189,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -216,7 +216,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -244,7 +244,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -266,7 +266,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -288,7 +288,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == False
 
@@ -310,7 +310,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == False
 
@@ -335,7 +335,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -360,7 +360,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -385,7 +385,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == False
 
@@ -410,7 +410,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == False
 
@@ -436,7 +436,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -462,7 +462,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -487,7 +487,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -511,7 +511,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == True
 
@@ -536,7 +536,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == False
 
@@ -560,9 +560,6 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == False
-
-    def _run_spec_contents(self, spec_contents):
-        return SpecRunner._run_on_contents([('/fake/path.py', spec_contents)])
