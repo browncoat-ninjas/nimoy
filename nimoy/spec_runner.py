@@ -1,24 +1,24 @@
 import argparse
 import os
-from nimoy.runner.spec_finder import SpecFinder
-from nimoy.runner.spec_reader import SpecReader
-from nimoy.runner.spec_loader import SpecLoader
-from nimoy.runner.spec_executor import SpecExecutor
-from nimoy.runner import unittest_execution_framework
-from nimoy.runner import fs_resource_reader
+
 from nimoy.ast_tools import ast_chain
+from nimoy.runner import fs_resource_reader
+from nimoy.runner.spec_executor import SpecExecutor
+from nimoy.runner.spec_finder import SpecFinder
+from nimoy.runner.spec_loader import SpecLoader
+from nimoy.runner.spec_reader import SpecReader
 
 
 class SpecRunner:
-    def run(self):
+    def run(self, execution_framework):
         spec_locations = SpecRunner._find_specs()
         spec_contents = SpecRunner._read_specs(spec_locations)
-        return SpecRunner._run_on_contents(spec_contents)
+        return SpecRunner._run_on_contents(execution_framework, spec_contents)
 
     @staticmethod
-    def _run_on_contents(spec_contents):
+    def _run_on_contents(execution_framework, spec_contents):
         specs = SpecRunner._load_specs(spec_contents)
-        return SpecRunner._execute_specs(specs)
+        return SpecRunner._execute_specs(execution_framework, specs)
 
     @staticmethod
     def _find_specs():
@@ -38,5 +38,5 @@ class SpecRunner:
         return SpecLoader(ast_chain).load(spec_contents)
 
     @staticmethod
-    def _execute_specs(specs):
-        return SpecExecutor(unittest_execution_framework).execute(specs)
+    def _execute_specs(execution_framework, specs):
+        return SpecExecutor(execution_framework).execute(specs)

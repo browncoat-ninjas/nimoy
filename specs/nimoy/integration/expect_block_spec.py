@@ -1,6 +1,6 @@
-from nimoy.specification import Specification
-from nimoy.spec_runner import SpecRunner
 from nimoy.runner.exceptions import InvalidFeatureBlockException
+from nimoy.specification import Specification
+from specs.nimoy.runner_helper import run_spec_contents
 
 
 class ExpectBlocksSpec(Specification):
@@ -18,7 +18,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == True
@@ -37,7 +37,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == True
@@ -54,7 +54,7 @@ class JimbobSpec(Specification):
           """
 
         with when:
-            self._run_spec_contents(spec_contents)
+            run_spec_contents(spec_contents)
 
         with then:
             thrown(InvalidFeatureBlockException)
@@ -71,7 +71,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            self._run_spec_contents(spec_contents)
+            run_spec_contents(spec_contents)
 
         with then:
             thrown(InvalidFeatureBlockException)
@@ -90,7 +90,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == True
@@ -109,7 +109,7 @@ class JimbobSpec(Specification):
              """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == False
@@ -128,7 +128,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            self._run_spec_contents(spec_contents)
+            run_spec_contents(spec_contents)
 
         with then:
             thrown(InvalidFeatureBlockException)
@@ -147,7 +147,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            self._run_spec_contents(spec_contents)
+            run_spec_contents(spec_contents)
 
         with then:
             thrown(InvalidFeatureBlockException)
@@ -165,7 +165,7 @@ class JimbobSpec(Specification):
         """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == True
@@ -183,7 +183,7 @@ class JimbobSpec(Specification):
         """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == False
@@ -205,7 +205,7 @@ class JimbobSpec(Specification):
         """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == True
@@ -225,7 +225,7 @@ class JimbobSpec(Specification):
         """
 
         with when:
-            self._run_spec_contents(spec_contents)
+            run_spec_contents(spec_contents)
 
         with then:
             thrown(InvalidFeatureBlockException)
@@ -245,7 +245,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            self._run_spec_contents(spec_contents)
+            run_spec_contents(spec_contents)
 
         with then:
             thrown(InvalidFeatureBlockException)
@@ -264,7 +264,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == True
@@ -283,7 +283,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == True
@@ -302,7 +302,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             "Exception: Whaaaaat" in result.errors[0][1]
@@ -323,7 +323,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == True
@@ -342,7 +342,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
             "'ArithmeticError' but found 'Exception'" in result.failures[0][1]
 
         with then:
@@ -363,7 +363,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             "Expected: 'Moo'" in result.failures[0][1]
@@ -384,11 +384,8 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = self._run_spec_contents(spec_contents)
+            result = run_spec_contents(spec_contents)
 
         with then:
             "'Exception' to be thrown" in result.failures[0][1]
             result.wasSuccessful() == False
-
-    def _run_spec_contents(self, spec_contents):
-        return SpecRunner._run_on_contents([('/fake/path.py', spec_contents)])
