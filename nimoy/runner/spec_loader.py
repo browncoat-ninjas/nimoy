@@ -11,7 +11,7 @@ class SpecLoader:
             for spec_location, text in spec_locations_and_contents:
                 node = ast.parse(text, mode='exec')
 
-                metadata_of_specs_from_node = self.ast_chain.apply(node)
+                metadata_of_specs_from_node = self.ast_chain.apply(spec_location, node)
                 ast.fix_missing_locations(node)
                 compiled = compile(node, spec_location.spec_path, 'exec')
 
