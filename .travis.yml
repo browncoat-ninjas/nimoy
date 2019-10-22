@@ -21,4 +21,11 @@ jobs:
         - pip install -U setuptools pip pipenv
         - pipenv install -d
       script:
-        - mkdocs gh-deploy --remote-name https://${GH_TOKEN}@github.com/browncoat-ninjas/nimoy.git
+        - mkdocs build --verbose --clean --strict
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        github_token: ${GH_TOKEN}
+        local_dir: site
+        on:
+          branch: feature/proper-docs
