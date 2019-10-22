@@ -161,7 +161,7 @@ class MySpec(Specification):
             1 * the_mock.some_method('abcd', True)
 ```
 
-### RegEx Matching
+## RegEx Matching
 
 Use the `@` shorthand for pretty regex matching.
 
@@ -178,7 +178,7 @@ class MySpec(Specification):
             'The quick\nbrown fox' @ re.compile('.+brown.+', re.MULTILINE) # You can also provide your own pattern
 ```
 
-### Skipping Features
+## Skipping Features
 
 You can use unittest's standard decorator to skip features.
 
