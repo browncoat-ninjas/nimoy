@@ -20,8 +20,8 @@ class SpecFinder:
         for suggested_location in suggested_locations:
             normalized_suggested_location = self._normalize_suggested_location(suggested_location)
 
-            if normalized_suggested_location.endswith('spec.py'):
-                self.spec_locations.append(normalized_suggested_location)
+            if 'spec.py' in normalized_suggested_location:
+                self.spec_locations.append(Location(normalized_suggested_location))
             else:
                 self._find_specs_in_directory(normalized_suggested_location)
 
@@ -34,4 +34,37 @@ class SpecFinder:
     def _find_specs_in_directory(self, directory):
         for root, dir_names, file_names in os.walk(directory):
             for filename in fnmatch.filter(file_names, '*spec.py'):
-                self.spec_locations.append(os.path.join(root, filename))
+                self.spec_locations.append(Location(os.path.join(root, filename)))
+
+
+class Location:
+    def __init__(self, suggested_location):
+
+        # Format may be:
+        # - some_spec.py
+        # - some_spec.py::SpecName
+        # - some_spec.py::feature_name
+        # - some_spec.py::SpecName::feature_name
+        split_suggested_location = suggested_location.split("::")
+
+        # some_spec.py
+        if len(split_suggested_location) == 1:
+            self.spec_path = split_suggested_location[0]
+
+        # some_spec.py::SpecName or some_spec.py::feature_name
+        if len(split_suggested_location) == 2:
+            self.spec_path = split_suggested_location[0]
+
+            # some_spec.py::SpecName
+            if split_suggested_location[1][0].isupper():
+                self.spec_name = split_suggested_location[1]
+
+            # some_spec.py::feature_name
+            else:
+                self.feature_name = split_suggested_location[1]
+
+        # some_spec.py::SpecName::feature_name
+        if len(split_suggested_location) == 3:
+            self.spec_path = split_suggested_location[0]
+            self.spec_name = split_suggested_location[1]
+            self.feature_name = split_suggested_location[2]

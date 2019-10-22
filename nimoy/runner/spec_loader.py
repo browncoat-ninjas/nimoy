@@ -6,14 +6,14 @@ class SpecLoader:
         super().__init__()
         self.ast_chain = ast_chain
 
-    def load(self, spec_contents):
+    def load(self, spec_locations_and_contents):
         def specs():
-            for spec_file_location, text in spec_contents:
+            for spec_location, text in spec_locations_and_contents:
                 node = ast.parse(text, mode='exec')
 
                 metadata_of_specs_from_node = self.ast_chain.apply(node)
                 ast.fix_missing_locations(node)
-                compiled = compile(node, spec_file_location, 'exec')
+                compiled = compile(node, spec_location.spec_path, 'exec')
 
                 spec_namespace = {}
                 exec(compiled, spec_namespace)

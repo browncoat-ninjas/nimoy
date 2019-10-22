@@ -54,4 +54,4 @@ class FeatureRegistrationTransformer(ast.NodeTransformer):
     @staticmethod
     def _skip_feature(feature_node):
         decorators = feature_node.decorator_list
-        return any((hasattr(decorator, 'attr') and decorator.attr is 'skip') for decorator in decorators)
+        return any((hasattr(decorator, 'attr') and decorator.attr == 'skip') for decorator in decorators)
