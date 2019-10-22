@@ -1,6 +1,8 @@
+import _ast
 import ast
 import copy
-import _ast
+
+from nimoy.ast_tools import ast_proxy
 from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer, MockAssertionTransformer, \
     ThrownExpressionTransformer, MockBehaviorExpressionTransformer
 from nimoy.runner.exceptions import InvalidFeatureBlockException
@@ -40,7 +42,7 @@ class WhereBlockFunctions:
                     targets=[
                         _ast.Subscript(
                             value=_ast.Name(id='injectable_values', ctx=_ast.Load()),
-                            slice=_ast.Index(value=_ast.Str(s=variable_name)),
+                            slice=_ast.Index(value=ast_proxy.ast_str(s=variable_name)),
                             ctx=_ast.Store()
                         )
                     ],
@@ -61,7 +63,7 @@ class WhereBlockFunctions:
                     targets=[
                         _ast.Subscript(
                             value=_ast.Name(id='injectable_values', ctx=_ast.Load()),
-                            slice=_ast.Index(value=_ast.Str(s=variable_name)),
+                            slice=_ast.Index(value=ast_proxy.ast_str(s=variable_name)),
                             ctx=_ast.Store()
                         )
                     ],
@@ -200,16 +202,11 @@ class FeatureBlockTransformer(ast.NodeTransformer):
     def _replace_with_block_context(with_node, block_type):
         with_node.items[0].context_expr = _ast.Call(
             func=_ast.Attribute(value=_ast.Name(id='self', ctx=_ast.Load()), attr='_feature_block_context',
-                                ctx=_ast.Load()), args=[_ast.Str(s=block_type)], keywords=[])
+                                ctx=_ast.Load()), args=[ast_proxy.ast_str(s=block_type)], keywords=[])
 
     def _replace_where_block_with_function(self, with_node):
         return _ast.FunctionDef(name=self.feature_name + '_where',
-                                args=_ast.arguments(
-                                    args=[_ast.arg(arg='self'), _ast.arg(arg='injectable_values')],
-                                    kwonlyargs=[],
-                                    kw_defaults=[],
-                                    defaults=[]
-                                ),
+                                args=ast_proxy.ast_args([_ast.arg(arg='self'), _ast.arg(arg='injectable_values')]),
                                 body=copy.deepcopy(with_node.body),
                                 decorator_list=[],
                                 returns=None)

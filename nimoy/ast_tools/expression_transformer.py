@@ -1,5 +1,7 @@
-import ast
 import _ast
+import ast
+
+from nimoy.ast_tools import ast_proxy
 from nimoy.compare.types import Types
 
 
@@ -47,7 +49,7 @@ class ComparisonExpressionTransformer(ast.NodeTransformer):
                 attr='_compare',
                 ctx=_ast.Load()
             ),
-            args=[left_value, right_value, _ast.Str(s=internal_comparison_type.name)],
+            args=[left_value, right_value, ast_proxy.ast_str(s=internal_comparison_type.name)],
             keywords=[]
         )
         return expression_node
@@ -103,9 +105,9 @@ class MockAssertionTransformer(ast.NodeTransformer):
 
         number_of_invocations = value.left
         if MockAssertionTransformer._value_is_a_wildcard(number_of_invocations):
-            number_of_invocations = _ast.Num(n=-1)
+            number_of_invocations = ast_proxy.ast_num(n=-1)
         target_mock = value.right.func.value
-        target_method = _ast.Str(s=value.right.func.attr)
+        target_method = ast_proxy.ast_str(s=value.right.func.attr)
 
         list_of_arguments = [MockAssertionTransformer._transform_arg_if_wildcard(x) for x in value.right.args]
         spread_list_of_arguments = _ast.Starred(value=_ast.List(elts=list_of_arguments, ctx=_ast.Load()),
@@ -128,6 +130,6 @@ class MockAssertionTransformer(ast.NodeTransformer):
     @staticmethod
     def _transform_arg_if_wildcard(arg):
         if MockAssertionTransformer._value_is_a_wildcard(arg):
-            return _ast.Str(s='__nimoy_argument_wildcard')
+            return ast_proxy.ast_str(s='__nimoy_argument_wildcard')
 
         return arg
