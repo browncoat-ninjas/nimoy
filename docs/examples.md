@@ -161,19 +161,38 @@ class MySpec(Specification):
             1 * the_mock.some_method('abcd', True)
 ```
 
-### Syntactic Sugar
+### RegEx Matching
 
-Different routine operations have shorthands to make your specifications cleaner and more readable
+Use the `@` shorthand for pretty regex matching.
 
 ```python
 import re
-from unittest import mock
+
 from nimoy.specification import Specification
 
 class MySpec(Specification):
 
-    def regex_assertion(self):
+    def my_feature_method(self):
         with expect:
             'The quick brown fox' @ '.+brown.+' # This is valid regex matching!
             'The quick\nbrown fox' @ re.compile('.+brown.+', re.MULTILINE) # You can also provide your own pattern
+```
+
+### Skipping Features
+
+You can use unittest's standard decorator to skip features.
+
+```python
+import unittest
+
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    @unittest.skip
+    def my_feature_method(self):
+        with given:
+            a = 'The quick brown fox'
+        with expect:
+            a == 'The quick frown box'
 ```
