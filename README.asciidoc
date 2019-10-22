@@ -23,68 +23,12 @@ The aim of this project is to port Spock to Python while maintaining the origina
 * Pretty mock behavior assertion.
 * See fancy detailed assertion failure reports.
 
-== Installation
+== Learn More
 
-```
-pip install nimoy-framework
-```
+* https://browncoat-ninjas.github.io/nimoy/[About]
+* https://browncoat-ninjas.github.io/nimoy/user-guide/[User Guide]
+* https://browncoat-ninjas.github.io/nimoy/contributing/[Contributing]
 
-== Examples
-
-Nimoy will pick up on any module ending with `_spec.py` and will treat any class that ends with the word `Spec` as a Specification class.
-
-=== Simple Specification
-
-A specification with a `given` (alias for `setup`) and `expect` block.
-
-*Note that conditional statements do not require you to write `self.assertX` or even `assert`. Nimoy will still evaluate them.*
-
-.simple_spec.py
-[source,python]
-----
-from nimoy.specification import Specification
-
-class MySpec(Specification):
-
-    def my_feature_method(self):
-        with given:
-            a = 'The quick brown fox'
-        with expect:
-            a == 'The quick frown box'
-----
-
-[source,bash]
-----
-$ nimoy
-
-my_feature_method (builtins.MySpec) ... FAIL
-
-======================================================================
-FAIL: my_feature_method (builtins.MySpec)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/Users/noam/something/test_spec.py", line 9, in my_feature_method
-    a == 'The quick frown box'
-  File "/Users/noam/work/private/nimoy/nimoy/specification.py", line 11, in _compare
-    Compare().compare(left, right, comparison_type_name)
-  File "/Users/noam/work/private/nimoy/nimoy/compare/internal.py", line 21, in compare
-    raise AssertionError(error_message) from None
-AssertionError:
-Expected: 'The quick frown box'
-     but: was 'The quick brown fox'
-Hint:
-- The quick brown fox
-?           ^     ^
-
-+ The quick frown box
-?           ^     ^
-
-
-----------------------------------------------------------------------
-Ran 1 test in 0.002s
-
-FAILED (failures=1)
-----
 
 === Stimulus and Response Specification
 
@@ -246,23 +190,6 @@ class MySpec(Specification):
         with expect:
             'The quick brown fox' @ '.+brown.+' # This is valid regex matching!
 ----
-
-=== More great features to come!
-
-== Contribution
-
-Is most welcome!
-
-Nimoy is branched with the standard https://github.com/nvie/gitflow[git flow] conventions so mainline development will be merged to `develop`; features and PRs to feature branches.
-See link:CONTRIBUTING.asciidoc[`CONTRIBUTING.asciidoc`] for more details.
-
-=== All Code Modifications
-
-Should pass the automated build and be backed up by Nimoy specifications.
-
-=== New Features
-
-Should include at least one documented example.
 
 == License
 
