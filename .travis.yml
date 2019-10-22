@@ -25,7 +25,7 @@ jobs:
       deploy:
         provider: pages
         skip_cleanup: true
-        github_token: ${GH_TOKEN}
+        github_token: $GH_TOKEN
         local_dir: site
         on:
           branch: feature/proper-docs
