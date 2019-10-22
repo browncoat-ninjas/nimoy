@@ -14,7 +14,7 @@ script:
 
 jobs:
   include:
-    - if: branch = feature/proper-docs
+    - if: branch = master
       stage: deploy-docs
       python: 3.8
       install:
@@ -28,4 +28,4 @@ jobs:
         github_token: $GH_TOKEN
         local_dir: site
         on:
-          branch: feature/proper-docs
+          branch: master
