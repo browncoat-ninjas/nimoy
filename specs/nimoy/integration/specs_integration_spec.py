@@ -1,5 +1,7 @@
 import ast
+
 from nimoy.ast_tools.specs import SpecTransformer
+from nimoy.runner.spec_finder import Location
 from nimoy.specification import Specification
 
 
@@ -25,7 +27,7 @@ class JimbobSpec(Specification):
 
         with when:
             found_metadata = []
-            SpecTransformer(found_metadata).visit(node)
+            SpecTransformer(Location('some_spec.py'), found_metadata).visit(node)
         with then:
             len(node.body[1].body) == 2  # The where method should have been extracted to class level
             node.body[1].body[1].name == 'my_feature_where'
