@@ -8,10 +8,11 @@ test = "python -m nimoy.main"
 
 [dev-packages]
 twine = "*"
+mkdocs = "*"
 
 [packages]
 pyhamcrest = "*"
 urllib3 = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
