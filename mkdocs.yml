@@ -1,0 +1,6 @@
+site_name: Nimoy
+nav:
+  - Home: index.md
+  - User Guide: user-guide.md
+
+theme: readthedocs
