@@ -1,5 +1,5 @@
 from nimoy.specification import Specification
-from nimoy.spec_runner import SpecRunner
+from specs.nimoy.runner_helper import run_spec_contents
 
 
 class VerboseDiffsSpec(Specification):
@@ -17,7 +17,7 @@ class JimbobSpec(Specification):
             """
 
         with when:
-            result = SpecRunner._run_on_contents([('/fake/path.py', spec_contents)])
+            result = run_spec_contents(spec_contents)
 
         with then:
             result.wasSuccessful() == False

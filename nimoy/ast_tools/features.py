@@ -12,6 +12,9 @@ class FeatureRegistrationTransformer(ast.NodeTransformer):
         self.spec_metadata = spec_metadata
 
     def visit_FunctionDef(self, feature_node):
+        if FeatureRegistrationTransformer._skip_feature(feature_node):
+            return feature_node
+
         feature_name = feature_node.name
         if not feature_name.startswith('_'):
             self.spec_metadata.add_feature(feature_name)
@@ -47,3 +50,8 @@ class FeatureRegistrationTransformer(ast.NodeTransformer):
             return hasattr(body_element, 'name') and body_element.name == feature_name + '_where'
 
         return next(body_element for body_element in feature_node.body if _is_a_where_function(body_element))
+
+    @staticmethod
+    def _skip_feature(feature_node):
+        decorators = feature_node.decorator_list
+        return any((hasattr(decorator, 'attr') and decorator.attr is 'skip') for decorator in decorators)
