@@ -24,7 +24,9 @@ class SpecRunner:
     def _find_specs():
         parser = argparse.ArgumentParser(prog='nimoy', description='Run a suite of Nimoy specs.')
         parser.add_argument('specs', metavar='S', type=str, nargs='*',
-                            help='A path to a spec file to execute or a directory to scan for spec files')
+                            help="""A path to a spec file to execute or a directory to scan for spec files.
+                            When naming a file it is possible to select which spec or feature to run. some_spec.py[::SpecName[::feature_name]]
+                            """)
         args = parser.parse_args()
         suggested_locations = args.specs
         return SpecFinder(os.getcwd()).find(suggested_locations)
