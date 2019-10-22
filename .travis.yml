@@ -21,4 +21,4 @@ jobs:
         - pip install -U setuptools pip pipenv
         - pipenv install -d
       script:
-        - mkdocs gh-deploy --remote-branch https://${GH_TOKEN}@github.com/browncoat-ninjas/nimoy.git
+        - mkdocs gh-deploy --remote-name https://${GH_TOKEN}@github.com/browncoat-ninjas/nimoy.git
