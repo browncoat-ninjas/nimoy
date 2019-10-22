@@ -20,7 +20,7 @@ class SpecTransformer(ast.NodeTransformer):
 
                 metadata = SpecMetadata(class_node.name)
                 self._register_spec(metadata)
-                FeatureRegistrationTransformer(metadata).visit(class_node)
+                FeatureRegistrationTransformer(self.spec_location, metadata).visit(class_node)
 
                 for feature_name in metadata.where_functions:
                     feature = next(
