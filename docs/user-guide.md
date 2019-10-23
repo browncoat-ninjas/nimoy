@@ -96,3 +96,36 @@ Ran 1 test in 0.002s
 
 FAILED (failures=1)
 ```
+
+## Running Nimoy
+
+### Run All
+
+By default, Nimoy will run all the specifications in the current directory and in any child directory:
+```bash
+$ nimoy
+```
+
+### Run Some
+
+You can tell Nimoy to run the specifications in certain directories:
+```bash
+$ nimoy subdir-1 subdir-2
+```
+
+### Run Just
+
+Nimoy can run specific modules:
+```bash
+$ nimoy subdir-1/my_spec.py subdir-2/my_other_spec.py
+```
+
+Or certain specifications:
+```bash
+$ nimoy subdir-1/my_spec.py::ThisSpec subdir-2/my_other_spec.py::TheOtherSpec
+```
+
+And even specific features:
+```bash
+$ nimoy subdir-1/my_spec.py::ThisSpec::this_feature subdir-2/my_other_spec.py::the_other_feature
+```
