@@ -89,7 +89,7 @@ class MySpec(Specification):
             expected_value = [10, 40]
 ```
 
-### Pretty Mock Response Staging
+## Pretty Mock Response Staging
 
 When using `unittest` mocks you can stage the return values using binary operators.
 
