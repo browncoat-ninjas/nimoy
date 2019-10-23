@@ -1,0 +1,12 @@
+site_name: Nimoy
+nav:
+  - Home: index.md
+  - User Guide: user-guide.md
+  - Examples: examples.md
+  - Contributing: contributing.md
+
+theme:
+  name: material
+
+repo_name: 'browncoat-ninjas/nimoy'
+repo_url: 'https://github.com/browncoat-ninjas/nimoy'

@@ -1,20 +1,31 @@
-import ast
 import _ast
-from nimoy.ast_tools.feature_blocks import FeatureBlockTransformer
+import ast
+
+from nimoy.ast_tools import ast_proxy
 from nimoy.ast_tools.feature_blocks import FeatureBlockRuleEnforcer
+from nimoy.ast_tools.feature_blocks import FeatureBlockTransformer
 
 
 class FeatureRegistrationTransformer(ast.NodeTransformer):
-    def __init__(self, spec_metadata) -> None:
+    def __init__(self, spec_location, spec_metadata) -> None:
         super().__init__()
+        self.spec_location = spec_location
         self.spec_metadata = spec_metadata
 
     def visit_FunctionDef(self, feature_node):
+        if FeatureRegistrationTransformer._skip_feature(feature_node):
+            return feature_node
+
         feature_name = feature_node.name
         if not feature_name.startswith('_'):
-            self.spec_metadata.add_feature(feature_name)
-            FeatureBlockTransformer(self.spec_metadata, feature_name).visit(feature_node)
-            FeatureBlockRuleEnforcer(self.spec_metadata, feature_name, feature_node).enforce_tail_end_rules()
+
+            feature_name_specified = hasattr(self.spec_location, 'feature_name')
+
+            if not feature_name_specified or (
+                    feature_name_specified and self.spec_location.feature_name == feature_name):
+                self.spec_metadata.add_feature(feature_name)
+                FeatureBlockTransformer(self.spec_metadata, feature_name).visit(feature_node)
+                FeatureBlockRuleEnforcer(self.spec_metadata, feature_name, feature_node).enforce_tail_end_rules()
 
         feature_variables = self.spec_metadata.feature_variables.get(feature_name)
         if feature_variables:
@@ -24,7 +35,7 @@ class FeatureRegistrationTransformer(ast.NodeTransformer):
                 if feature_variable in existing_arg_names:
                     continue
                 feature_node.args.args.append(_ast.arg(arg=feature_variable))
-                feature_node.args.defaults.append(_ast.NameConstant(value=None))
+                feature_node.args.defaults.append(ast_proxy.ast_name_constant(value=None))
 
         if self._feature_has_a_where_function(feature_name):
             self._remove_where_function_from_node(feature_name, feature_node)
@@ -45,3 +56,8 @@ class FeatureRegistrationTransformer(ast.NodeTransformer):
             return hasattr(body_element, 'name') and body_element.name == feature_name + '_where'
 
         return next(body_element for body_element in feature_node.body if _is_a_where_function(body_element))
+
+    @staticmethod
+    def _skip_feature(feature_node):
+        decorators = feature_node.decorator_list
+        return any((hasattr(decorator, 'attr') and decorator.attr == 'skip') for decorator in decorators)

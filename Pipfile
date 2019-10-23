@@ -3,11 +3,18 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[scripts]
+test = "python -m nimoy.main"
+
 [dev-packages]
 twine = "*"
+mkdocs = "*"
+pylint = "*"
+mkdocs-material = "*"
 
 [packages]
 pyhamcrest = "*"
+urllib3 = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"

@@ -1,15 +1,13 @@
 from unittest.mock import Mock
-from nimoy.specification import Specification
+
 from nimoy.runner.spec_executor import SpecExecutor
+from nimoy.specification import Specification
 
 
 class SpecificationExecutorSpec(Specification):
     def execution(self):
         with given:
             execution_framework_mock = Mock()
-
-            suit = {}
-            execution_framework_mock.create_suite.return_value = suit
 
             spec_mock = Mock()
 
@@ -23,6 +21,5 @@ class SpecificationExecutorSpec(Specification):
             SpecExecutor(execution_framework_mock).execute([spec_mock])
 
         with then:
-            execution_framework_mock.create_suite.assert_called_once()
-            execution_framework_mock.append_test.assert_called_once_with(suit, spec_feature_stub)
-            execution_framework_mock.run.assert_called_once_with(suit)
+            execution_framework_mock.append_test.assert_called_once_with(spec_feature_stub)
+            execution_framework_mock.run.assert_called_once()

@@ -1,7 +1,7 @@
 from setuptools import setup
 
 classifiers = [
-                  'Development Status :: 4 - Beta',
+                  'Development Status :: 5 - Production/Stable',
                   'Intended Audience :: Developers',
                   'License :: OSI Approved :: Apache Software License',
                   'Operating System :: POSIX',
@@ -10,7 +10,7 @@ classifiers = [
                   'Topic :: Software Development :: Libraries',
                   'Topic :: Utilities',
               ] + [
-                  ('Programming Language :: Python :: %s' % x) for x in '3 3.3 3.4 3.5 3.6 3.7'.split()
+                  ('Programming Language :: Python :: %s' % x) for x in '3 3.3 3.4 3.5 3.6 3.7 3.8'.split()
               ]
 
 with open('README.rst') as read_me:
@@ -18,7 +18,7 @@ with open('README.rst') as read_me:
 
 setup(
     name='nimoy-framework',
-    version='0.0.1b7',
+    version='1.0.0',
     description='A testing and specification framework for Python 3, heavily inspired by the Spock Framework',
     long_description=long_description,
     url='https://github.com/browncoat-ninjas/nimoy',

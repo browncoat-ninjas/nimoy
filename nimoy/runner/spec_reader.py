@@ -6,7 +6,7 @@ class SpecReader:
     def read(self, spec_locations):
         def spec_contents():
             for spec_file_location in spec_locations:
-                text = self.resource_reader.read(spec_file_location)
+                text = self.resource_reader.read(spec_file_location.spec_path)
                 yield (spec_file_location, text)
 
         return spec_contents()
