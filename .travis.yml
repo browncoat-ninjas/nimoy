@@ -11,3 +11,21 @@ install:
   - pipenv install
 script:
   - pipenv run test
+
+jobs:
+  include:
+    - if: branch = master
+      stage: deploy-docs
+      python: 3.8
+      install:
+        - pip install -U setuptools pip pipenv
+        - pipenv install -d
+      script:
+        - mkdocs build --verbose --clean --strict
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        github_token: $GH_TOKEN
+        local_dir: site
+        on:
+          branch: master

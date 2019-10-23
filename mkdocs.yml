@@ -1,0 +1,8 @@
+site_name: Nimoy
+nav:
+  - Home: index.md
+  - User Guide: user-guide.md
+  - Examples: examples.md
+  - Contributing: contributing.md
+
+theme: readthedocs
