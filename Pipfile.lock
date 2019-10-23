@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9711d4a12e0698ae6ca1fb9a462e45ad36a3733dfb649d7869b9647c7983e40b"
+            "sha256": "99ef2c034d8e532c99f649dd0d0c57840c0411f3b1364a5e4b907205601c0e1c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -84,6 +84,12 @@
             ],
             "version": "==0.15.2"
         },
+        "htmlmin": {
+            "hashes": [
+                "sha256:50c1ef4630374a5d723900096a961cff426dff46b48f34d194a81bbe14eca178"
+            ],
+            "version": "==0.1.12"
+        },
         "idna": {
             "hashes": [
                 "sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407",
@@ -104,6 +110,12 @@
                 "sha256:9fe95f19286cfefaa917656583d020be14e7859c6b0252588391e47db34527de"
             ],
             "version": "==2.10.3"
+        },
+        "jsmin": {
+            "hashes": [
+                "sha256:b6df99b2cd1c75d9d342e4335b535789b8da9107ec748212706ef7bbe5c2553b"
+            ],
+            "version": "==2.2.2"
         },
         "lazy-object-proxy": {
             "hashes": [
@@ -190,6 +202,28 @@
             "index": "pypi",
             "version": "==1.0.4"
         },
+        "mkdocs-material": {
+            "hashes": [
+                "sha256:a5246b550299d00a135a3f739e70ac6db73d7127480f0fecbda113d0095a674a",
+                "sha256:e4a9ac73db7c65fdae1dbd248091e4b0a3f5db3e6bf87a46bb457db013a045e4"
+            ],
+            "index": "pypi",
+            "version": "==4.4.3"
+        },
+        "mkdocs-minify-plugin": {
+            "hashes": [
+                "sha256:3000a5069dd0f42f56a8aaf7fd5ea1222c67487949617e39585d6b6434b074b6",
+                "sha256:d54fdd5be6843dd29fd7af2f7fdd20a9eb4db46f1f6bed914e03b2f58d2d488e"
+            ],
+            "version": "==0.2.1"
+        },
+        "pep562": {
+            "hashes": [
+                "sha256:58cb1cc9ee63d93e62b4905a50357618d526d289919814bea1f0da8f53b79395",
+                "sha256:d2a48b178ebf5f8dd31709cc26a19808ef794561fa2fe50ea01ea2bad4d667ef"
+            ],
+            "version": "==1.0"
+        },
         "pkginfo": {
             "hashes": [
                 "sha256:7424f2c8511c186cd5424bbf31045b77435b37a8d604990b79d4e70d741148bb",
@@ -211,6 +245,13 @@
             ],
             "index": "pypi",
             "version": "==2.4.3"
+        },
+        "pymdown-extensions": {
+            "hashes": [
+                "sha256:24c1a0afbae101c4e2b2675ff4dd936470a90133f93398b9cbe0c855e2d2ec10",
+                "sha256:960486dea995f1759dfd517aa140b3d851cd7b44d4c48d276fd2c74fc4e1bce9"
+            ],
+            "version": "==6.1"
         },
         "pyyaml": {
             "hashes": [

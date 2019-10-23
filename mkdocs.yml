@@ -5,4 +5,8 @@ nav:
   - Examples: examples.md
   - Contributing: contributing.md
 
-theme: readthedocs
+theme:
+  name: material
+
+repo_name: 'browncoat-ninjas/nimoy'
+repo_url: 'https://github.com/browncoat-ninjas/nimoy'

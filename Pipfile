@@ -10,6 +10,7 @@ test = "python -m nimoy.main"
 twine = "*"
 mkdocs = "*"
 pylint = "*"
+mkdocs-material = "*"
 
 [packages]
 pyhamcrest = "*"
