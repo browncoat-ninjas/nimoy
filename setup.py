@@ -18,7 +18,7 @@ with open('README.rst') as read_me:
 
 setup(
     name='nimoy-framework',
-    version='1.0.0',
+    version='1.0.1',
     description='A testing and specification framework for Python 3, heavily inspired by the Spock Framework',
     long_description=long_description,
     url='https://github.com/browncoat-ninjas/nimoy',
@@ -30,6 +30,5 @@ setup(
     classifiers=classifiers,
     keywords="test unittest specification",
     packages=['nimoy', 'nimoy.assertions', 'nimoy.ast_tools', 'nimoy.context', 'nimoy.runner', 'nimoy.compare'],
-    install_requires=['pyhamcrest==1.9.0'],
-
+    install_requires=['pyhamcrest==2.0.0', 'urllib3==1.25.8'],
 )
