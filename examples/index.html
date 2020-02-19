@@ -265,6 +265,33 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#pretty-failure-messages" class="md-nav__link">
+    Pretty Failure Messages
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#string-assertions" class="md-nav__link">
+    String Assertions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mock-assertions" class="md-nav__link">
+    Mock Assertions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stimulus-and-response-specification" class="md-nav__link">
     Stimulus and Response Specification
   </a>
@@ -377,6 +404,33 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#pretty-failure-messages" class="md-nav__link">
+    Pretty Failure Messages
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#string-assertions" class="md-nav__link">
+    String Assertions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mock-assertions" class="md-nav__link">
+    Mock Assertions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stimulus-and-response-specification" class="md-nav__link">
     Stimulus and Response Specification
   </a>
@@ -465,6 +519,60 @@
                 
                 
                 <h1 id="examples">Examples</h1>
+<h2 id="pretty-failure-messages">Pretty Failure Messages</h2>
+<h3 id="string-assertions">String Assertions</h3>
+<pre><code class="python">from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    def string_assertion(self):
+        with given:
+            a = &quot;There's a huge difference&quot;
+        with expect:
+            a == &quot;There's a small difference&quot;
+</code></pre>
+
+<p>Produces</p>
+<pre><code>======================================================================
+FAIL: string_assertion (builtins.MySpec)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  [redacted]
+AssertionError: 
+Expected: &quot;There's a small difference&quot;
+     but: was &quot;There's a huge difference&quot;
+Hint:
+- There's a huge difference
+?           ^^^^
+
++ There's a small difference
+?           ^^^^^
+</code></pre>
+
+<h3 id="mock-assertions">Mock Assertions</h3>
+<pre><code class="python">from nimoy.specification import Specification
+from unittest import mock
+
+class MySpec(Specification):
+
+    def mock_assertion(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            the_mock.some_method()
+        with then:
+            2 * the_mock.some_method()
+</code></pre>
+
+<p>Produces</p>
+<pre><code>======================================================================
+FAIL: mock_assertion (builtins.MySpec)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  [redacted]
+AssertionError: some_method was to be invoked 2 times but was invoked 1
+</code></pre>
+
 <h2 id="stimulus-and-response-specification">Stimulus and Response Specification</h2>
 <p>A specification with a <code>setup</code>, <code>when</code> and <code>then</code> block.</p>
 <p><code>when</code> blocks describe a certain action and <code>then</code> blocks assert the results of that action.</p>
