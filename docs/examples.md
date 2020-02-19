@@ -1,5 +1,68 @@
 # Examples
 
+## Pretty Failure Messages
+
+### String Assertions
+
+```python
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+    
+    def string_assertion(self):
+        with given:
+            a = "There's a huge difference"
+        with expect:
+            a == "There's a small difference"
+```
+
+Produces
+
+```
+======================================================================
+FAIL: string_assertion (builtins.MySpec)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  [redacted]
+AssertionError: 
+Expected: "There's a small difference"
+     but: was "There's a huge difference"
+Hint:
+- There's a huge difference
+?           ^^^^
+
++ There's a small difference
+?           ^^^^^
+```
+
+### Mock Assertions
+
+```python
+from nimoy.specification import Specification
+from unittest import mock
+
+class MySpec(Specification):
+    
+    def mock_assertion(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            the_mock.some_method()
+        with then:
+            2 * the_mock.some_method()
+```
+
+Produces
+
+```
+======================================================================
+FAIL: mock_assertion (builtins.MySpec)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  [redacted]
+AssertionError: some_method was to be invoked 2 times but was invoked 1
+```
+
 ## Stimulus and Response Specification
 
 A specification with a `setup`, `when` and `then` block.
