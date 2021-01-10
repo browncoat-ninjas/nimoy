@@ -10,7 +10,7 @@ classifiers = [
                   'Topic :: Software Development :: Libraries',
                   'Topic :: Utilities',
               ] + [
-                  ('Programming Language :: Python :: %s' % x) for x in '3 3.3 3.4 3.5 3.6 3.7 3.8'.split()
+                  ('Programming Language :: Python :: %s' % x) for x in '3 3.3 3.4 3.5 3.6 3.7 3.8 3.9'.split()
               ]
 
 with open('README.rst') as read_me:
@@ -30,5 +30,5 @@ setup(
     classifiers=classifiers,
     keywords="test unittest specification",
     packages=['nimoy', 'nimoy.assertions', 'nimoy.ast_tools', 'nimoy.context', 'nimoy.runner', 'nimoy.compare'],
-    install_requires=['pyhamcrest==2.0.0', 'urllib3==1.25.8'],
+    install_requires=['pyhamcrest==2.0.2', 'urllib3==1.26.2'],
 )

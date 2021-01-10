@@ -373,3 +373,25 @@ class JimbobSpec(Specification):
             result = run_spec_contents(spec_contents)
         with then:
             result.wasSuccessful() == False
+
+    def zero_invocation_count_assertion(self):
+        with given:
+            spec_contents = """from unittest import mock
+from nimoy.specification import Specification
+
+
+class JimbobSpec(Specification):
+    def test(self):
+        with setup:
+            the_mock = mock.Mock()
+        with when:
+            pass
+        with then:
+            0 * the_mock.some_method()
+            """
+
+        with when:
+            result = run_spec_contents(spec_contents)
+        with then:
+            result.wasSuccessful() == True
+
