@@ -42,7 +42,7 @@ class WhereBlockFunctions:
                     targets=[
                         _ast.Subscript(
                             value=_ast.Name(id='injectable_values', ctx=_ast.Load()),
-                            slice=ast_proxy.slice_access(value=ast_proxy.ast_str(s=variable_name)),
+                            slice=_ast.Index(value=ast_proxy.ast_str(s=variable_name)),
                             ctx=_ast.Store()
                         )
                     ],
@@ -63,7 +63,7 @@ class WhereBlockFunctions:
                     targets=[
                         _ast.Subscript(
                             value=_ast.Name(id='injectable_values', ctx=_ast.Load()),
-                            slice=ast_proxy.slice_access(value=ast_proxy.ast_str(s=variable_name)),
+                            slice=_ast.Index(value=ast_proxy.ast_str(s=variable_name)),
                             ctx=_ast.Store()
                         )
                     ],
