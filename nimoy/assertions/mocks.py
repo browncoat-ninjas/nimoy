@@ -4,6 +4,10 @@ class MockAssertions:
             raise AssertionError(method + " was never invoked") from None
 
         mocked_method = getattr(mock, method)
+
+        if (number_of_invocations == 0) and (mocked_method.call_count == 0):
+            return
+
         if (number_of_invocations >= 0) and (mocked_method.call_count != number_of_invocations):
             raise AssertionError(
                 method + " was to be invoked " + str(number_of_invocations) + " times but was invoked " + str(
