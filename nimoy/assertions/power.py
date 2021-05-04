@@ -1,28 +1,37 @@
-from nimoy.compare.types import Types
-
-
+# Expression such as my_var or a literal
 class Expression:
-    def __init__(self, name: str, value, column: int, constant: bool = False, next_node=None):
+    def __init__(self, name: str, value, column: int, end_column: int, constant: bool = False, next_node=None):
         self.name = name
         self.value = value
+
+        # Zero based index where the expression begins in the assertion
         self.column = column
+
+        # Zero based index where the expression ends in the assertion
+        self.end_column = end_column
         self.constant = constant
         self.next_node = next_node
 
 
+# Comparator operation
 class Op:
-    def __init__(self, value: str, op: Types):
+    def __init__(self, value: str, op: str, column: int, next_node=None):
         self.value = value
         self.op = op
+        self.column = column
+        self.next_node = next_node
 
 
-class Assertion:
-    def __init__(self, left: Expression, right: Expression, op: Op):
-        self.left = left
-        self.right = right
-        self.op = op
-
-
+# Renders this:
+# my_var.my_field == my_var_2
+#
+# To this:
+# Assertion failed:
+# my_var.my_field == my_var_2
+# |      |        |  |
+# |      |        |  {'bob': 'mcbob'}
+# |      2        false
+# {'moo': 'bob'}
 class PowerAssertions:
 
     def __init__(self):
@@ -39,10 +48,61 @@ class PowerAssertions:
         # Collection of all rendered value rows
         self.value_rows = []
 
-        # We use this var to keep track of our position in the expression during the iteration
-        self.current_index = 0
+        # This var keeps the rendered expression. We keep track of this so that we can later display it in the message
+        self.rendered_expression = []
 
+    # Document the value in the value row
+    def _append_value_to_current_value_row(self, node_name: str, node_value: str, node_column: int, constant: bool):
+        # If we are starting with an empty value row, we might need to fill it with pads and pipes of previous values
+        if len(self.current_value_row) == 0:
+
+            # Before we add the value to the current row, we need to check if there are any previous values that have
+            # been listed. Go through columns from 0 to the given column, and fill in a pipe if there was a value at
+            # that column, or a space if there was no value at that column
+            for column in range(node_column):
+                if column in self.columns and self.columns[column]:
+                    self.current_value_row.append('|')
+                else:
+                    self.current_value_row.append(' ')
+
+        # Finally, if the value isn't a constant, append the value to the current row and document the column for later
+        # iterations. Constants should be added to the value rows as its redundant
+        if not constant:
+            self.current_value_row = self.current_value_row + list(str(node_value))
+
+            # Document that there's a value in this column for later iterations
+            self.columns[node_column] = True
+
+        # If the value of the node is longer than the name of the node, we need to start a new value row because this
+        # value may leak into the starting column of the next node
+        if len(str(node_value)) > len(node_name):
+
+            # Add the current value row to the list of finalized value rows and reset the current value row
+            self._append_and_reset_current_value_row()
+
+        # The value of the current node is equal to or shorter than the name of the node
+        else:
+            # Pad the current value row with spaces for the remainder of the length of the current node, ready for the
+            # next node
+            length_of_range_to_pad = len(node_name) - len(str(node_value))
+            if length_of_range_to_pad == 0 and constant:
+                length_of_range_to_pad = len(node_name)
+
+            for column in range(length_of_range_to_pad):
+                self.current_value_row.append(' ')
+
+            # Add another pad to account for the separator between this node and the next
+            self.current_value_row.append(' ')
+
+    # Adds the current value row to the list of value rows to be rendered and reset it ready for the next iteration
     def _append_and_reset_current_value_row(self):
+
+        # If the current value row is empty, then we don't need to add anything. This may happen when the last value row
+        # exceeded the length of the whole expression. In this case the value row was already appended to the render
+        # list and reset
+        if not self.current_value_row:
+            return
+
         joined_value_row = ''.join(self.current_value_row)
 
         # Extra spaces may have been prematurely added for padding. Remove them only on the right because whitespace
@@ -51,89 +111,69 @@ class PowerAssertions:
         self.value_rows.append(trimmed_value_row)
         self.current_value_row = []
 
-    def _append_assertion_node(self, assertion, side_expression):
+    # Iterates over the expression hierarchy to build the complete asserted expression and the value breakdown
+    def _append_expression(self, expression):
+
         # Starting with the left most node
-        current_node = assertion
+        current_node = expression
         while current_node is not None:
 
-            # First, add the name of the current node to the left side of the expression for the final render
-            side_expression.append(current_node.name)
+            # If the current node is a comparison operation
+            if type(current_node) is Op:
 
-            # If we are starting with an empty value row, we need to start filling it
-            if len(self.current_value_row) == 0:
+                # Append the actual operation (== for example) to the rendered assertion expression
+                self.rendered_expression.append(current_node.op)
 
-                # Before we add the value of the current row, we need to check if there are any previous values that
-                # have been listed. Go through columns from 0 to the column of the current value, and fill in a pipe if
-                # there was a value at that column, or a space if there was no value at than column
-                for column in range(current_node.column):
-                    if column in self.columns and self.columns[column]:
-                        self.current_value_row.append('|')
-                    else:
-                        self.current_value_row.append(' ')
+                # The operation name has been added to the expression, now we add the separator between this node and
+                # the next node. This is always a space
+                self.rendered_expression.append(' ')
 
-            # Finally, if the current node isn't a constant, append the value of the current node to the current value
-            # row and list the column for later iterations. Constants should be added to the value rows as its redundant
-            if not current_node.constant:
-                self.current_value_row = self.current_value_row + list(str(current_node.value))
-                self.columns[current_node.column] = True
+                # Append the outcome of the assertion (true/false) to the current value row
+                self._append_value_to_current_value_row(current_node.op, current_node.value, current_node.column, False)
 
-            # If the value of the current node is longer than the expression itself, we need to start a new value row
-            # because this value may leak into the next value column
-            if len(str(current_node.value)) > len(current_node.name):
-
-                # Add the current value row to the list of finalized value rows and reset the current value row
-                self._append_and_reset_current_value_row()
-
-            # The value of the current node is equal or shorter than the name of the node
+            # Current node is an expression
             else:
-                # Pad the current value row with spaces for the remainder of the length of the current expression,
-                # ready for the next expression
-                length_of_range_to_pad = len(current_node.name) - len(str(current_node.value))
-                if length_of_range_to_pad == 0 and current_node.constant:
-                    length_of_range_to_pad = len(current_node.name)
-                for column in range(length_of_range_to_pad):
-                    self.current_value_row.append(' ')
+                # Append the name of the node (my_var for example) to the rendered assertion expression
+                self.rendered_expression.append(current_node.name)
 
-            # Bump the current index with the length of the current node name ready for the next iteration and move to
-            # the next node
-            self.current_index = (current_node.column + len(current_node.name)) - 1
+                # The current node name has been added to the expression, now we add the separator between this node and
+                # the next node. This is either a period or a space
+                if type(current_node.next_node) is Expression:
+                    self.rendered_expression.append('.')
+                if type(current_node.next_node) is Op:
+                    self.rendered_expression.append(' ')
+
+                # Append the value of the node ('my_value' for example) to the current value row
+                self._append_value_to_current_value_row(current_node.name, current_node.value, current_node.column,
+                                                        current_node.constant)
+
             current_node = current_node.next_node
 
-    def assert_and_render(self, assertion: Assertion):
+    # Renders a Nimoy power assertion expression a string
+    def assert_and_render(self, expression: Expression):
 
-        # This var keeps all the expressions to the left of the comparator. We keep track of this so that we can later
-        # render the complete expression
-        left_expression = []
+        # Append all expression nodes to the global data structures
+        self._append_expression(expression)
 
-        self._append_assertion_node(assertion.left, left_expression)
-
-        # We've completed the iteration over the left expression, now manually add the location of the comparator to the
-        # columns because we track the value of the comparator as well
-        self.current_index = self.current_index + 2
-        self.columns[self.current_index] = True
-
-        # Append the value of the comparator (True / False) to the current value row
-        self.current_value_row = self.current_value_row + list(str(f' {assertion.op.value}'))
-
-        # Add the current value row to the list of finalized value rows and reset the current value row
-        self._append_and_reset_current_value_row()
-
-        # Bump the current index in preparation for the iteration of the right expression
-        self.current_index = self.current_index + 2
-
-        right_expression = []
-        self._append_assertion_node(assertion.right, right_expression)
-
-        # Add the current value row to the list of finalized value rows and reset the current value row
+        # Append any content that's been added to the current value row
         self._append_and_reset_current_value_row()
 
         # If the last expression on the right was a literal, a row of all pads and pipes will have already been added
-        # because the first thing we do when we handle a new expression node is to pad and pipe for all prior values.
-        # In the case of a literal the row will be padded and piped but no value will be added.
+        # because the first thing we do when we handle a new expression node is to pad and pipe for all values that have
+        # appeared beforehand.
+        # In the case of a literal the row will be padded and piped but when the literal is reached, its value will not
+        # be added.
         # In all other cases we need to create this first row with all pads and pipes
         last_added_row = self.value_rows[-1]
+
+        # Check if the last row contains *any* alphanumeric characters. If it does we need to create the all pipe/pad
+        # row
         if any(letter.isalnum() for letter in last_added_row):
+
+            # Iterate from zero to the right-most value column
             for column in range(max(self.columns.keys()) + 1):
+
+                # If theres a value in this column, write a pipe
                 if column in self.columns and self.columns[column]:
                     self.current_value_row.append('|')
                 else:
@@ -144,6 +184,6 @@ class PowerAssertions:
 
         self.value_rows.reverse()
 
-        joined_values = "\n".join(self.value_rows) + '\n'
-        value = f"Assertion failed:\n{'.'.join(left_expression)} == {'.'.join(right_expression)}\n{joined_values}"
+        joined_value_rows = "\n".join(self.value_rows) + '\n'
+        value = f"Assertion failed:\n{''.join(self.rendered_expression)}\n{joined_value_rows}"
         return value
