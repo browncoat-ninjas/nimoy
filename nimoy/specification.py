@@ -1,9 +1,11 @@
+from typing import Dict
 from unittest import TestCase
 import copy
 from nimoy.context.feature_block_context import FeatureBlock
 from nimoy.compare.internal import Compare
 from nimoy.assertions.mocks import MockAssertions
 from nimoy.assertions.exceptions import ExceptionAssertions
+from nimoy.assertions.power import PowerAssertions
 
 
 class DataDrivenSpecification(type):
@@ -63,6 +65,9 @@ class Specification(TestCase, metaclass=DataDrivenSpecification):
 
     def _compare(self, left, right, comparison_type_name):
         Compare().compare(left, right, comparison_type_name)
+
+    def _power_assert(self, expression: Dict):
+        PowerAssertions().assert_and_raise(expression)
 
     def _assert_mock(self, number_of_invocations, mock, method, *args):
         MockAssertions().assert_mock(number_of_invocations, mock, method, *args)
