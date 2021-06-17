@@ -1,25 +1,4 @@
-# Expression such as my_var or a literal
-class Expression:
-    def __init__(self, name: str, value, column: int, end_column: int, constant: bool = False, next_node=None):
-        self.name = name
-        self.value = value
-
-        # Zero based index where the expression begins in the assertion
-        self.column = column
-
-        # Zero based index where the expression ends in the assertion
-        self.end_column = end_column
-        self.constant = constant
-        self.next_node = next_node
-
-
-# Comparator operation
-class Op:
-    def __init__(self, value: str, op: str, column: int, next_node=None):
-        self.value = value
-        self.op = op
-        self.column = column
-        self.next_node = next_node
+from typing import Dict
 
 
 # Renders this:
@@ -32,6 +11,9 @@ class Op:
 # |      |        |  {'bob': 'mcbob'}
 # |      2        false
 # {'moo': 'bob'}
+#
+# The input of the assertion methods is the assertion expression broken in a tree structure that can be produced using
+# nimoy.ast_tools.expression_transformer.PowerAssertionTransformer
 class PowerAssertions:
 
     def __init__(self):
@@ -112,45 +94,48 @@ class PowerAssertions:
         self.current_value_row = []
 
     # Iterates over the expression hierarchy to build the complete asserted expression and the value breakdown
-    def _append_expression(self, expression):
+    def _append_expression(self, expression: Dict):
 
         # Starting with the left most node
         current_node = expression
         while current_node is not None:
 
             # If the current node is a comparison operation
-            if type(current_node) is Op:
+            if current_node['type'] == 'op':
 
                 # Append the actual operation (== for example) to the rendered assertion expression
-                self.rendered_expression.append(current_node.op)
+                self.rendered_expression.append(current_node['op'])
 
                 # The operation name has been added to the expression, now we add the separator between this node and
                 # the next node. This is always a space
                 self.rendered_expression.append(' ')
 
                 # Append the outcome of the assertion (true/false) to the current value row
-                self._append_value_to_current_value_row(current_node.op, current_node.value, current_node.column, False)
+                self._append_value_to_current_value_row(current_node['type'], current_node['value'],
+                                                        current_node['column'], False)
 
             # Current node is an expression
             else:
                 # Append the name of the node (my_var for example) to the rendered assertion expression
-                self.rendered_expression.append(current_node.name)
+                self.rendered_expression.append(current_node['name'])
 
                 # The current node name has been added to the expression, now we add the separator between this node and
                 # the next node. This is either a period or a space
-                if type(current_node.next_node) is Expression:
-                    self.rendered_expression.append('.')
-                if type(current_node.next_node) is Op:
-                    self.rendered_expression.append(' ')
+                if current_node.get('next'):
+                    if current_node['next']['type'] == 'exp':
+                        self.rendered_expression.append('.')
+                    if current_node['next']['type'] == 'op':
+                        self.rendered_expression.append(' ')
 
                 # Append the value of the node ('my_value' for example) to the current value row
-                self._append_value_to_current_value_row(current_node.name, current_node.value, current_node.column,
-                                                        current_node.constant)
+                self._append_value_to_current_value_row(current_node['name'], current_node['value'],
+                                                        current_node['column'],
+                                                        current_node.get('constant', False))
 
-            current_node = current_node.next_node
+            current_node = current_node.get('next')
 
     # Renders a Nimoy power assertion expression a string
-    def assert_and_render(self, expression: Expression):
+    def render(self, expression: Dict):
 
         # Append all expression nodes to the global data structures
         self._append_expression(expression)
@@ -187,3 +172,21 @@ class PowerAssertions:
         joined_value_rows = "\n".join(self.value_rows) + '\n'
         value = f"Assertion failed:\n{''.join(self.rendered_expression)}\n{joined_value_rows}"
         return value
+
+    # Raises an AssertionError if the expression failed
+    def assert_and_raise(self, expression: Dict):
+        # Look for the op and inspect its value
+        current_node = expression
+        while current_node is not None:
+            if current_node['type'] != 'op':
+                current_node = current_node.get('next')
+                continue
+
+            # If the assertion op succeeded, return. There's no need to render anything
+            if current_node['value']:
+                return
+
+            # If the assertion failed
+            break
+
+        raise AssertionError(self.render(expression))
