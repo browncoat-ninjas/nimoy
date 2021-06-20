@@ -1,12 +1,15 @@
 import ast
+from typing import List
 
 from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.ast_tools.features import FeatureRegistrationTransformer
+from nimoy.runner.metadata import RunnerContext
 
 
 class SpecTransformer(ast.NodeTransformer):
-    def __init__(self, spec_location, spec_metadata) -> None:
+    def __init__(self, runner_context: RunnerContext, spec_location, spec_metadata: List) -> None:
         super().__init__()
+        self.runner_context = runner_context
         self.spec_location = spec_location
         self.spec_metadata = spec_metadata
 
@@ -20,7 +23,7 @@ class SpecTransformer(ast.NodeTransformer):
 
                 metadata = SpecMetadata(class_node.name)
                 self._register_spec(metadata)
-                FeatureRegistrationTransformer(self.spec_location, metadata).visit(class_node)
+                FeatureRegistrationTransformer(self.runner_context, self.spec_location, metadata).visit(class_node)
 
                 for feature_name in metadata.where_functions:
                     feature = next(

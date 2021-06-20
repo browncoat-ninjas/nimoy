@@ -1,6 +1,7 @@
 from unittest import mock
 
 from nimoy.ast_tools import ast_chain
+from nimoy.runner.metadata import RunnerContext
 from nimoy.runner.spec_finder import Location
 from nimoy.specification import Specification
 
@@ -12,7 +13,7 @@ class AstChainSpec(Specification):
         with given:
             node = {}
         with when:
-            spec_metadata = ast_chain.apply(Location('some_spec.py'), node)
+            spec_metadata = ast_chain.apply(RunnerContext(), Location('some_spec.py'), node)
         with then:
             isinstance(spec_metadata, list) == True
             1 * spec_transformer_mock.return_value.visit(node)
