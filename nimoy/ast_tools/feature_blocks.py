@@ -2,9 +2,11 @@ import _ast
 import ast
 import copy
 
+from nimoy.runner.metadata import RunnerContext
 from nimoy.ast_tools import ast_proxy
+from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer, MockAssertionTransformer, \
-    ThrownExpressionTransformer, MockBehaviorExpressionTransformer
+    ThrownExpressionTransformer, MockBehaviorExpressionTransformer, PowerAssertionTransformer
 from nimoy.runner.exceptions import InvalidFeatureBlockException
 
 SETUP = 'setup'
@@ -153,8 +155,9 @@ class FeatureBlockRuleEnforcer:
 
 
 class FeatureBlockTransformer(ast.NodeTransformer):
-    def __init__(self, spec_metadata, feature_name) -> None:
+    def __init__(self, runner_context: RunnerContext, spec_metadata: SpecMetadata, feature_name: str) -> None:
         super().__init__()
+        self.runner_context = runner_context
         self.spec_metadata = spec_metadata
         self.feature_name = feature_name
 
@@ -172,7 +175,10 @@ class FeatureBlockTransformer(ast.NodeTransformer):
                     MockBehaviorExpressionTransformer().visit(with_node)
 
                 if block_type in [THEN, EXPECT]:
-                    ComparisonExpressionTransformer().visit(with_node)
+                    if self.runner_context.use_power_assertions:
+                        PowerAssertionTransformer().visit(with_node)
+                    else:
+                        ComparisonExpressionTransformer().visit(with_node)
 
                 if block_type == THEN:
                     MockAssertionTransformer().visit(with_node)

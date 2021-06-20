@@ -3,6 +3,7 @@ from unittest import mock
 
 from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.ast_tools.features import FeatureRegistrationTransformer
+from nimoy.runner.metadata import RunnerContext
 from nimoy.runner.spec_finder import Location
 from nimoy.specification import Specification
 
@@ -13,6 +14,7 @@ class FeatureRegistrationTransformerSpec(Specification):
     @mock.patch('nimoy.ast_tools.features.FeatureBlockTransformer')
     def a_feature_was_added(self, feature_block_transformer, feature_block_rule_enforcer):
         with setup:
+            runner_context = RunnerContext()
             module_definition = """
 class JSpec:
     def test_jim(self):
@@ -25,13 +27,13 @@ class JSpec:
             metadata = SpecMetadata('jim')
 
         with when:
-            FeatureRegistrationTransformer(Location('some_spec.py'), metadata).visit(node)
+            FeatureRegistrationTransformer(runner_context, Location('some_spec.py'), metadata).visit(node)
 
         with then:
             len(metadata.features) == 1
             metadata.features[0] == 'test_jim'
 
-            feature_block_transformer.assert_called_once_with(metadata, 'test_jim')
+            feature_block_transformer.assert_called_once_with(runner_context, metadata, 'test_jim')
             1 * feature_block_transformer.return_value.visit(node.body[0].body[0])
 
             feature_block_rule_enforcer.assert_called_once_with(metadata, 'test_jim', node.body[0].body[0])
@@ -41,6 +43,7 @@ class JSpec:
     @mock.patch('nimoy.ast_tools.features.FeatureBlockTransformer')
     def only_the_specified_feature_was_added(self, feature_block_transformer, feature_block_rule_enforcer):
         with setup:
+            runner_context = RunnerContext()
             module_definition = """
 class JSpec:
     def test_jim(self):
@@ -55,13 +58,13 @@ class JSpec:
             metadata = SpecMetadata('jim')
 
         with when:
-            FeatureRegistrationTransformer(Location('some_spec.py::test_bob'), metadata).visit(node)
+            FeatureRegistrationTransformer(runner_context, Location('some_spec.py::test_bob'), metadata).visit(node)
 
         with then:
             len(metadata.features) == 1
             metadata.features[0] == 'test_bob'
 
-            feature_block_transformer.assert_called_once_with(metadata, 'test_bob')
+            feature_block_transformer.assert_called_once_with(runner_context, metadata, 'test_bob')
             1 * feature_block_transformer.return_value.visit(node.body[0].body[1])
 
             feature_block_rule_enforcer.assert_called_once_with(metadata, 'test_bob', node.body[0].body[1])
@@ -71,6 +74,7 @@ class JSpec:
     @mock.patch('nimoy.ast_tools.features.FeatureBlockTransformer')
     def a_feature_with_where_block_was_added(self, feature_block_transformer, feature_block_rule_enforcer):
         with setup:
+            runner_context = RunnerContext()
             module_definition = """
 class JSpec:
     def test_jim(self):
@@ -90,13 +94,13 @@ class JSpec:
             feature_block_transformer.return_value.visit.side_effect = visit
 
         with when:
-            FeatureRegistrationTransformer(Location('some_spec.py'), metadata).visit(node)
+            FeatureRegistrationTransformer(runner_context, Location('some_spec.py'), metadata).visit(node)
 
         with then:
             len(metadata.features) == 1
             metadata.features[0] == 'test_jim'
 
-            feature_block_transformer.assert_called_once_with(metadata, 'test_jim')
+            feature_block_transformer.assert_called_once_with(runner_context, metadata, 'test_jim')
             feature_block_transformer.return_value.visit.assert_called_once_with(node.body[0].body[0])
 
             feature_block_rule_enforcer.assert_called_once_with(metadata, 'test_jim', node.body[0].body[0])

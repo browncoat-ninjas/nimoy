@@ -11,6 +11,7 @@ twine = "*"
 mkdocs = "*"
 pylint = "*"
 mkdocs-material = "*"
+astor = "*"
 
 [packages]
 pyhamcrest = "==2.0.2"

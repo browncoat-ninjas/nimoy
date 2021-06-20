@@ -1,6 +1,8 @@
 import ast
 from unittest import mock
 import _ast
+
+from nimoy.runner.metadata import RunnerContext
 from nimoy.specification import Specification
 from nimoy.ast_tools.feature_blocks import FeatureBlockTransformer
 from nimoy.ast_tools.feature_blocks import FeatureBlockRuleEnforcer
@@ -175,7 +177,7 @@ class JimbobSpec(Specification):
             spec_metadata = get_basic_spec_metadata()
 
         with when:
-            FeatureBlockTransformer(spec_metadata, 'test_it').visit(node)
+            FeatureBlockTransformer(RunnerContext(), spec_metadata, 'test_it').visit(node)
 
         with then:
             spec_feature_body = node.body[1].body[0].body

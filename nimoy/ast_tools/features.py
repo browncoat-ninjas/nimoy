@@ -2,13 +2,16 @@ import _ast
 import ast
 
 from nimoy.ast_tools import ast_proxy
+from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.ast_tools.feature_blocks import FeatureBlockRuleEnforcer
 from nimoy.ast_tools.feature_blocks import FeatureBlockTransformer
+from nimoy.runner.metadata import RunnerContext
 
 
 class FeatureRegistrationTransformer(ast.NodeTransformer):
-    def __init__(self, spec_location, spec_metadata) -> None:
+    def __init__(self, runner_context: RunnerContext, spec_location, spec_metadata: SpecMetadata) -> None:
         super().__init__()
+        self.runner_context = runner_context
         self.spec_location = spec_location
         self.spec_metadata = spec_metadata
 
@@ -24,7 +27,7 @@ class FeatureRegistrationTransformer(ast.NodeTransformer):
             if not feature_name_specified or (
                     feature_name_specified and self.spec_location.feature_name == feature_name):
                 self.spec_metadata.add_feature(feature_name)
-                FeatureBlockTransformer(self.spec_metadata, feature_name).visit(feature_node)
+                FeatureBlockTransformer(self.runner_context, self.spec_metadata, feature_name).visit(feature_node)
                 FeatureBlockRuleEnforcer(self.spec_metadata, feature_name, feature_node).enforce_tail_end_rules()
 
         feature_variables = self.spec_metadata.feature_variables.get(feature_name)
