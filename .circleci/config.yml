@@ -58,9 +58,10 @@ jobs:
       - run:
           name: Install and configure dependencies
           command: |
+            npm init -y
             npm install -g -s -y --no-progress --prefix=$HOME/.local gh-pages
             git config user.email "noam@10ne.org"
             git config user.name "noamt"
       - run:
           name: Deploy docs to gh-pages branch
-          command: gh-pages --dist site --git $(which git)
+          command: gh-pages --dist site
