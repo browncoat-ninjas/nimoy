@@ -11,6 +11,7 @@ install:
   - pipenv install
 script:
   - pipenv run test
+  - pipenv run test-with-power
 
 jobs:
   include:

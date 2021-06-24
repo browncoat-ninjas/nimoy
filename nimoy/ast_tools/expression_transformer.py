@@ -3,6 +3,8 @@ import ast
 from _ast import Dict, Constant
 from typing import Tuple
 
+import astor
+
 from nimoy.ast_tools import ast_proxy
 from nimoy.compare.types import Types
 
@@ -76,88 +78,154 @@ class ComparisonExpressionTransformer(ast.NodeTransformer):
 # _power_assert without adding any classes that the user didn't import themselves
 class PowerAssertionTransformer(ast.NodeTransformer):
 
-    # Recursively transform the expression node AST to a linked dictionary structure AST. Supported nodes are Name,
+    @staticmethod
+    def _append_expression_keys(d: Dict):
+        d.keys.extend([Constant(value='type', kind=None), Constant(value='name', kind=None),
+                       Constant(value='value', kind=None), Constant(value='column', kind=None),
+                       Constant(value='end_column', kind=None), Constant(value='constant', kind=None)])
+
+    @staticmethod
+    def _append_name_as_expression_values(root_expression_offset: int, ast_object: _ast.Name, d: Dict):
+        d.values.extend([Constant(value='exp', kind=None), Constant(value=ast_object.id, kind=None), ast_object,
+                         Constant(value=ast_object.col_offset - root_expression_offset, kind=None),
+                         Constant(value=ast_object.end_col_offset - root_expression_offset - 1, kind=None),
+                         Constant(value=False, kind=None)])
+
+    @staticmethod
+    def _append_constant_as_expression_values(root_expression_offset: int, ast_object: _ast.Constant, d: Dict):
+        d.values.extend([Constant(value='exp', kind=None), Constant(value=str(ast_object.value), kind=None), ast_object,
+                         Constant(value=ast_object.col_offset - root_expression_offset, kind=None),
+                         Constant(value=ast_object.end_col_offset - root_expression_offset - 1, kind=None),
+                         Constant(value=True, kind=None)])
+
+    @staticmethod
+    def _append_attribute_as_expression_values(root_expression_offset: int, ast_object: _ast.Attribute, d: Dict):
+        d.values.extend([Constant(value='exp', kind=None), Constant(value=str(ast_object.attr), kind=None), ast_object,
+                         Constant(value=ast_object.value.end_col_offset - root_expression_offset + 1, kind=None),
+                         Constant(value=ast_object.end_col_offset - root_expression_offset - 1, kind=None),
+                         Constant(value=False, kind=None)])
+
+    @staticmethod
+    def _append_call_as_expression_values(root_expression_offset: int, ast_object: _ast.Call, d: Dict):
+
+        if type(ast_object.func) is _ast.Name:
+            name = astor.to_source(ast_object).strip()
+            column = ast_object.col_offset - root_expression_offset
+        elif type(ast_object.func) is _ast.Attribute:
+            name = astor.to_source(ast_object).strip()[
+                   ast_object.func.value.end_col_offset - ast_object.func.value.col_offset + 1:]
+            column = ast_object.func.value.end_col_offset - root_expression_offset + 1
+        else:
+            raise Exception(f"{type(ast_object.func)} is unsupported")
+
+        d.values.extend([Constant(value='exp', kind=None), Constant(value=name, kind=None), ast_object,
+                         Constant(value=column, kind=None),
+                         Constant(value=ast_object.end_col_offset - root_expression_offset - 1, kind=None),
+                         Constant(value=False, kind=None)])
+
+    @staticmethod
+    def _append_subscript_as_expression_values(root_expression_offset: int, root_subscript: _ast.Subscript,
+                                               subscript_target, d: Dict):
+
+        if type(subscript_target) is _ast.Name:
+            name = astor.to_source(root_subscript).strip()
+            column = subscript_target.col_offset - root_expression_offset
+        elif type(subscript_target) is _ast.Attribute:
+            name = astor.to_source(root_subscript).strip()[
+                   subscript_target.value.end_col_offset - subscript_target.value.col_offset + 1:]
+            column = subscript_target.value.end_col_offset - root_expression_offset + 1
+        else:
+            raise Exception(f"{type(root_subscript.value)} is unsupported")
+
+        d.values.extend([Constant(value='exp', kind=None), Constant(value=name, kind=None), root_subscript,
+                         Constant(value=column, kind=None),
+                         Constant(value=root_subscript.end_col_offset - root_expression_offset - 1, kind=None),
+                         Constant(value=False, kind=None)])
+
+    @staticmethod
+    def _append_struct_literal_as_expression_values(root_expression_offset: int, ast_object, d: Dict):
+        d.values.extend(
+            [Constant(value='exp', kind=None), Constant(value=astor.to_source(ast_object).strip(), kind=None),
+             ast_object, Constant(value=ast_object.col_offset - root_expression_offset, kind=None),
+             Constant(value=ast_object.end_col_offset - root_expression_offset - 1, kind=None),
+             Constant(value=True, kind=None)])
+
+    # Transform the expression node AST to a linked dictionary structure AST. Supported nodes are Name,
     # Constant and Attribute. Recursion occurs on every attribute node.
     # The method always returns the root link
     @staticmethod
-    def expression_node_ast_to_nimoy_expression_ast(ast_object) -> Tuple:
-        keys = []
-        values = []
-        if type(ast_object) is _ast.Name:
-            keys.append(Constant(value='type', kind=None))
-            values.append(Constant(value='exp', kind=None))
+    def expression_node_ast_to_nimoy_expression_ast(root_expression_offset: int, ast_object) -> Dict:
 
-            keys.append(Constant(value='name', kind=None))
-            values.append(Constant(value=ast_object.id, kind=None))
+        dict_to_return: Dict = None
 
-            keys.append(Constant(value='value', kind=None))
-            values.append(ast_object)
+        while ast_object is not None:
+            d = Dict(keys=[], values=[])
+            if type(ast_object) is _ast.Name:
+                PowerAssertionTransformer._append_expression_keys(d)
+                PowerAssertionTransformer._append_name_as_expression_values(root_expression_offset, ast_object, d)
+                if dict_to_return is not None:
+                    d.keys.append(Constant(value='next', kind=None))
+                    d.values.append(dict_to_return)
+                dict_to_return = d
+                ast_object = None
+            elif type(ast_object) is _ast.Constant:
+                PowerAssertionTransformer._append_expression_keys(d)
+                PowerAssertionTransformer._append_constant_as_expression_values(root_expression_offset, ast_object, d)
+                if dict_to_return is not None:
+                    d.keys.append(Constant(value='next', kind=None))
+                    d.values.append(dict_to_return)
+                dict_to_return = d
+                ast_object = None
+            elif type(ast_object) is _ast.Attribute:
+                PowerAssertionTransformer._append_expression_keys(d)
+                PowerAssertionTransformer._append_attribute_as_expression_values(root_expression_offset, ast_object, d)
+                if dict_to_return is not None:
+                    d.keys.append(Constant(value='next', kind=None))
+                    d.values.append(dict_to_return)
+                dict_to_return = d
+                ast_object = ast_object.value
+            elif type(ast_object) is _ast.Call:
+                PowerAssertionTransformer._append_expression_keys(d)
+                PowerAssertionTransformer._append_call_as_expression_values(root_expression_offset, ast_object, d)
+                if dict_to_return is not None:
+                    d.keys.append(Constant(value='next', kind=None))
+                    d.values.append(dict_to_return)
+                dict_to_return = d
+                if type(ast_object.func) is _ast.Attribute:
+                    ast_object = ast_object.func.value
+                else:
+                    ast_object = None
+            elif type(ast_object) is _ast.Subscript:
+                PowerAssertionTransformer._append_expression_keys(d)
 
-            keys.append(Constant(value='column', kind=None))
-            values.append(Constant(value=ast_object.col_offset, kind=None))
+                target = ast_object.value
+                while type(target) is _ast.Subscript:
+                    target = target.value
 
-            keys.append(Constant(value='end_column', kind=None))
-            # End col offset represents the next column after the node, assuming a zero based count. Nimoy considers
-            # The last character of the node name as the last column, so subtract by 1
-            values.append(Constant(value=ast_object.end_col_offset - 1, kind=None))
+                PowerAssertionTransformer._append_subscript_as_expression_values(root_expression_offset, ast_object,
+                                                                                 target, d)
+                if dict_to_return is not None:
+                    d.keys.append(Constant(value='next', kind=None))
+                    d.values.append(dict_to_return)
+                dict_to_return = d
+                if type(target) is _ast.Attribute:
+                    ast_object = target.value
+                else:
+                    ast_object = None
+            elif type(ast_object) in [_ast.List, _ast.Dict]:
+                PowerAssertionTransformer._append_expression_keys(d)
+                PowerAssertionTransformer._append_struct_literal_as_expression_values(root_expression_offset,
+                                                                                      ast_object, d)
+                if dict_to_return is not None:
+                    d.keys.append(Constant(value='next', kind=None))
+                    d.values.append(dict_to_return)
+                dict_to_return = d
+                ast_object = None
+            else:
+                raise Exception(
+                    f"AST object of type {type(ast_object)} ({astor.to_source(ast_object).strip()}) is unsupported")
 
-            keys.append(Constant(value='constant', kind=None))
-            values.append(Constant(value=False, kind=None))
-        elif type(ast_object) is _ast.Constant:
-            keys.append(Constant(value='type', kind=None))
-            values.append(Constant(value='exp', kind=None))
-
-            keys.append(Constant(value='name', kind=None))
-            values.append(Constant(value=str(ast_object.value), kind=None))
-
-            keys.append(Constant(value='value', kind=None))
-            values.append(ast_object)
-
-            keys.append(Constant(value='column', kind=None))
-            values.append(Constant(value=ast_object.col_offset, kind=None))
-
-            keys.append(Constant(value='end_column', kind=None))
-            # End col offset represents the next column after the node, assuming a zero based count. Nimoy considers
-            # The last character of the node name as the last column, so subtract by 1
-            values.append(Constant(value=ast_object.end_col_offset - 1, kind=None))
-
-            keys.append(Constant(value='constant', kind=None))
-            values.append(Constant(value=True, kind=None))
-        elif type(ast_object) is _ast.Attribute:
-            next_dict = Dict(keys=[], values=[])
-
-            next_dict.keys.append(Constant(value='type', kind=None))
-            next_dict.values.append(Constant(value='exp', kind=None))
-
-            next_dict.keys.append(Constant(value='name', kind=None))
-            next_dict.values.append(Constant(value=ast_object.attr, kind=None))
-
-            next_dict.keys.append(Constant(value='value', kind=None))
-            next_dict.values.append(ast_object)
-
-            next_dict.keys.append(Constant(value='column', kind=None))
-            # Because attributes are separated by a period, the attributes start column can be calculated by adding 1
-            # to the end col offset of the attribute's parent
-            next_dict.values.append(Constant(value=ast_object.value.end_col_offset + 1, kind=None))
-
-            next_dict.keys.append(Constant(value='end_column', kind=None))
-            # End col offset represents the next column after the node, assuming a zero based count. Nimoy considers
-            # The last character of the node name as the last column, so subtract by 1
-            next_dict.values.append(Constant(value=ast_object.end_col_offset - 1, kind=None))
-
-            next_dict.keys.append(Constant(value='constant', kind=None))
-            next_dict.values.append(Constant(value=False, kind=None))
-
-            parent_keys, parent_values = PowerAssertionTransformer.expression_node_ast_to_nimoy_expression_ast(
-                ast_object.value)
-
-            parent_keys.append(Constant(value='next', kind=None))
-            parent_values.append(next_dict)
-
-            keys.extend(parent_keys)
-            values.extend(parent_values)
-
-        return keys, values
+        return dict_to_return
 
     # Fetches the last link from the linked dictionaries
     @staticmethod
@@ -205,24 +273,19 @@ class PowerAssertionTransformer(ast.NodeTransformer):
     # Breaks the expression into a linked dictionary structure, where every evaluable node in the expression is a node
     # in the structure
     @staticmethod
-    def assert_ast_to_nimoy_expression_ast(node_value) -> Dict:
-        root_dict = Dict(keys=[], values=[])
+    def assert_ast_to_nimoy_expression_ast(root_expression_offset: int, node_value) -> Dict:
 
         # Transform the left side of the assertion into linked dictionaries
         left = node_value.left
-        left_keys_to_append, left_values_to_append = PowerAssertionTransformer.expression_node_ast_to_nimoy_expression_ast(
-            left)
-
-        # Append the left nodes to the root
-        root_dict.keys.extend(left_keys_to_append)
-        root_dict.values.extend(left_values_to_append)
+        root_dict = PowerAssertionTransformer.expression_node_ast_to_nimoy_expression_ast(root_expression_offset, left)
 
         # Fetch the last dictionary. expression_node_ast_to_nimoy_expression_ast is a recursive operation and always
         # returns the root node. We iterate until we find the last node to which we can then append the next node
         last_dict = PowerAssertionTransformer.get_last_dictionary(root_dict)
 
         # Transform the operation node to an op dictionary
-        op_dict = PowerAssertionTransformer.op_ast_to_nimoy_op_ast(node_value.ops[0], left.end_col_offset + 1,
+        op_dict = PowerAssertionTransformer.op_ast_to_nimoy_op_ast(node_value.ops[0],
+                                                                   left.end_col_offset - root_expression_offset + 1,
                                                                    node_value)
 
         # Append the operation dictionary to the linked dictionaries
@@ -230,12 +293,9 @@ class PowerAssertionTransformer(ast.NodeTransformer):
         last_dict.values.append(op_dict)
 
         # Transform the right side of the assertion into linked dictionaries
-        right_dict = Dict(keys=[], values=[])
         right = node_value.comparators[0]
-        right_keys_to_append, right_values_to_append = PowerAssertionTransformer.expression_node_ast_to_nimoy_expression_ast(
-            right)
-        right_dict.keys.extend(right_keys_to_append)
-        right_dict.values.extend(right_values_to_append)
+        right_dict = PowerAssertionTransformer.expression_node_ast_to_nimoy_expression_ast(root_expression_offset,
+                                                                                           right)
 
         # Append the right nodes to the operation
         op_dict.keys.append(Constant(value='next', kind=None))
@@ -244,20 +304,22 @@ class PowerAssertionTransformer(ast.NodeTransformer):
         return root_dict
 
     # Transforms the comparison expression to a power assert method call
-    def visit_Call(self, expression_node):
+    def visit_Expr(self, expression_node):
+        root_expression_offset = expression_node.col_offset
         value = expression_node.value
+
+        if isinstance(value, _ast.BinOp):
+            if hasattr(value, 'op') and isinstance(value.op, _ast.MatMult):
+                return ComparisonExpressionTransformer().visit_Expr(expression_node)
 
         # If the given node isn't a binary comparison operation, return it as is. We only translated expression like
         # jim == bob
         if not isinstance(value, _ast.Compare):
-            if isinstance(value, _ast.BinOp):
-                if hasattr(value, 'op') and not isinstance(value.op, _ast.MatMult):
-                    return expression_node
-            else:
-                return expression_node
+            return expression_node
 
         # Break down the expression into a linked dictionaries made of vanilla dictionaries
-        power_assertion_dict = PowerAssertionTransformer.assert_ast_to_nimoy_expression_ast(value)
+        power_assertion_dict = PowerAssertionTransformer.assert_ast_to_nimoy_expression_ast(root_expression_offset,
+                                                                                            value)
 
         # Insert a power assert method call instead of the expression and set the linked dictionaries as an argument
         expression_node.value = _ast.Call(

@@ -11,19 +11,21 @@ from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransform
 
 class PowerAssertionTransformerSpec(Specification):
 
-    def non_assertion_expressions_are_returned(self):
+    def regex_assertions_are_delegated_to_compare(self):
         with given:
-            expression = """jim = 'bob'"""
+            expression = """'asd' @ '.+'"""
             node = ast.parse(expression, mode='exec')
-            transformed = PowerAssertionTransformer().visit_Call(node.body[0])
+            transformed = PowerAssertionTransformer().visit_Expr(node.body[0])
+            node.body[0] = transformed
         with expect:
-            node.body[0] == transformed
+            astor.to_source(node) != None  # sanity check to make sure that the produced node is valid AST
+            transformed.value.func.attr == '_compare'
 
     def assertion_expressions_are_transformed(self):
         with given:
             expression = """True == 2"""
             node = ast.parse(expression, mode='exec')
-            transformed = PowerAssertionTransformer().visit_Call(node.body[0])
+            transformed = PowerAssertionTransformer().visit_Expr(node.body[0])
             node.body[0] = transformed
         with expect:
             astor.to_source(node) != None  # sanity check to make sure that the produced node is valid AST
@@ -76,11 +78,186 @@ class PowerAssertionTransformerSpec(Specification):
             right_values[4].value == 8
             right_values[5].value == True
 
+    def method_assertion_expressions_are_transformed(self):
+        with given:
+            expression = """get_a_value() == 2"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().visit_Expr(node.body[0])
+            node.body[0] = transformed
+        with expect:
+            astor.to_source(node) != None  # sanity check to make sure that the produced node is valid AST
+            transformed.value.func.attr == '_power_assert'
+            transformed.value.func.value.id == 'self'
+            left_keys = transformed.value.args[0].keys
+            left_keys[0].value == 'type'
+            left_keys[1].value == 'name'
+            left_keys[2].value == 'value'
+            left_keys[3].value == 'column'
+            left_keys[4].value == 'end_column'
+            left_keys[5].value == 'constant'
+            left_keys[6].value == 'next'
+
+            left_values = transformed.value.args[0].values
+            left_values[0].value == 'exp'
+            left_values[1].value == 'get_a_value()'
+            type(left_values[2]) == _ast.Call
+            left_values[3].value == 0
+            left_values[4].value == 12
+            left_values[5].value == False
+
+            op = left_values[6]
+            op_keys = op.keys
+            op_keys[0].value == 'type'
+            op_keys[1].value == 'value'
+            op_keys[2].value == 'op'
+            op_keys[3].value == 'column'
+            op_keys[4].value == 'next'
+
+            op_values = op.values
+            op_values[0].value == 'op'
+            type(op_values[1]) == _ast.Compare
+            op_values[2].value == '=='
+            op_values[3].value == 14
+
+            right_keys = op_values[4].keys
+            right_keys[0].value == 'type'
+            right_keys[1].value == 'name'
+            right_keys[2].value == 'value'
+            right_keys[3].value == 'column'
+            right_keys[4].value == 'end_column'
+            right_keys[5].value == 'constant'
+
+            right_values = op_values[4].values
+            right_values[0].value == 'exp'
+            right_values[1].value == '2'
+            right_values[2].value == 2
+            right_values[3].value == 17
+            right_values[4].value == 17
+            right_values[5].value == True
+
+    def array_access_assertion_expressions_are_transformed(self):
+        with given:
+            expression = """some_array[1] == 2"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().visit_Expr(node.body[0])
+            node.body[0] = transformed
+        with expect:
+            astor.to_source(node) != None  # sanity check to make sure that the produced node is valid AST
+            transformed.value.func.attr == '_power_assert'
+            transformed.value.func.value.id == 'self'
+            left_keys = transformed.value.args[0].keys
+            left_keys[0].value == 'type'
+            left_keys[1].value == 'name'
+            left_keys[2].value == 'value'
+            left_keys[3].value == 'column'
+            left_keys[4].value == 'end_column'
+            left_keys[5].value == 'constant'
+            left_keys[6].value == 'next'
+
+            left_values = transformed.value.args[0].values
+            left_values[0].value == 'exp'
+            left_values[1].value == 'some_array[1]'
+            type(left_values[2]) == _ast.Subscript
+            left_values[3].value == 0
+            left_values[4].value == 12
+            left_values[5].value == False
+
+            op = left_values[6]
+            op_keys = op.keys
+            op_keys[0].value == 'type'
+            op_keys[1].value == 'value'
+            op_keys[2].value == 'op'
+            op_keys[3].value == 'column'
+            op_keys[4].value == 'next'
+
+            op_values = op.values
+            op_values[0].value == 'op'
+            type(op_values[1]) == _ast.Compare
+            op_values[2].value == '=='
+            op_values[3].value == 14
+
+            right_keys = op_values[4].keys
+            right_keys[0].value == 'type'
+            right_keys[1].value == 'name'
+            right_keys[2].value == 'value'
+            right_keys[3].value == 'column'
+            right_keys[4].value == 'end_column'
+            right_keys[5].value == 'constant'
+
+            right_values = op_values[4].values
+            right_values[0].value == 'exp'
+            right_values[1].value == '2'
+            right_values[2].value == 2
+            right_values[3].value == 17
+            right_values[4].value == 17
+            right_values[5].value == True
+
+    def literal_list_assertion_expressions_are_transformed(self):
+        with given:
+            expression = """some_obj.some_att['key'] == ['var_a']"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().visit_Expr(node.body[0])
+            node.body[0] = transformed
+            transformed_values = transformed.value.args[0].values
+        with expect:
+            astor.to_source(node) != None  # sanity check to make sure that the produced node is valid AST
+            transformed_values[1].value == 'some_obj'
+            transformed_values[6].values[1].value == """some_att['key']"""
+            transformed_values[6].values[6].values[2].value == "=="
+            transformed_values[6].values[6].values[4].values[1].value == """[\'var_a\']"""
+
+    def literal_dict_assertion_expressions_are_transformed(self):
+        with given:
+            expression = """some_obj.some_att['key'] == {'key': 'value'}"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().visit_Expr(node.body[0])
+            node.body[0] = transformed
+            transformed_values = transformed.value.args[0].values
+        with expect:
+            astor.to_source(node) != None  # sanity check to make sure that the produced node is valid AST
+            transformed_values[1].value == 'some_obj'
+            transformed_values[6].values[1].value == """some_att['key']"""
+            transformed_values[6].values[6].values[2].value == "=="
+            transformed_values[6].values[6].values[4].values[1].value == """{'key': 'value'}"""
+
+    def non_zero_offset_assertion_expressions_are_transformed(self):
+        with given:
+            expression = """
+if True:
+    transformed_values[6].values[6].values[4].values[1].value == 'ley'
+"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().visit_Expr(node.body[0].body[0])
+            node.body[0] = transformed
+            transformed_values = transformed.value.args[0].values
+        with expect:
+            astor.to_source(node) != None  # sanity check to make sure that the produced node is valid AST
+            transformed_values[1].value == 'transformed_values[6]'
+            transformed_values[3].value == 0
+
+            transformed_values[6].values[1].value == 'values[6]'
+            transformed_values[6].values[3].value == 22
+
+            transformed_values[6].values[6].values[1].value == 'values[4]'
+            transformed_values[6].values[6].values[3].value == 32
+
+            transformed_values[6].values[6].values[6].values[1].value == 'values[1]'
+            transformed_values[6].values[6].values[6].values[3].value == 42
+
+            transformed_values[6].values[6].values[6].values[6].values[1].value == 'value'
+            transformed_values[6].values[6].values[6].values[6].values[3].value == 52
+
+            transformed_values[6].values[6].values[6].values[6].values[6].values[2].value == '=='
+            transformed_values[6].values[6].values[6].values[6].values[6].values[3].value == 58
+
+            transformed_values[6].values[6].values[6].values[6].values[6].values[4].values[1].value == 'ley'
+            transformed_values[6].values[6].values[6].values[6].values[6].values[4].values[3].value == 61
+
     def convert_assertion_ast_to_nimoy_expression_ast(self):
         with given:
             expression = """True == 2"""
             node = ast.parse(expression, mode='exec')
-            transformed = PowerAssertionTransformer().assert_ast_to_nimoy_expression_ast(node.body[0].value)
+            transformed = PowerAssertionTransformer().assert_ast_to_nimoy_expression_ast(0, node.body[0].value)
         with expect:
             left_keys = transformed.keys
             left_keys[0].value == 'type'
@@ -160,8 +337,9 @@ class PowerAssertionTransformerSpec(Specification):
     def name_node_ast_to_nimoy_expression_ast(self):
         with given:
             name_expression = Name(id='bob', col_offset=0, end_col_offset=10)
-            transformed_keys, transformed_values = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(
-                name_expression)
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, name_expression)
+            transformed_keys = transformed.keys
+            transformed_values = transformed.values
         with expect:
             transformed_keys[0].value == 'type'
             transformed_keys[1].value == 'name'
@@ -180,8 +358,10 @@ class PowerAssertionTransformerSpec(Specification):
     def constant_node_ast_to_nimoy_expression_ast(self):
         with given:
             constant_expression = Constant(value='bob', col_offset=0, end_col_offset=10)
-            transformed_keys, transformed_values = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(
-                constant_expression)
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0,
+                                                                                                  constant_expression)
+            transformed_keys = transformed.keys
+            transformed_values = transformed.values
         with expect:
             transformed_keys[0].value == 'type'
             transformed_keys[1].value == 'name'
@@ -197,12 +377,244 @@ class PowerAssertionTransformerSpec(Specification):
             transformed_values[4].value == 9
             transformed_values[5].value == True
 
+    def function_call_node_ast_to_nimoy_expression_ast(self):
+        with given:
+            expression = """some_func_call()"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, node.body[0].value)
+            transformed_keys = transformed.keys
+            transformed_values = transformed.values
+        with expect:
+            transformed_keys[0].value == 'type'
+            transformed_keys[1].value == 'name'
+            transformed_keys[2].value == 'value'
+            transformed_keys[3].value == 'column'
+            transformed_keys[4].value == 'end_column'
+            transformed_keys[5].value == 'constant'
+
+            transformed_values[0].value == 'exp'
+            transformed_values[1].value == 'some_func_call()'
+            type(transformed_values[2]) == _ast.Call
+            transformed_values[3].value == 0
+            transformed_values[4].value == 15
+            transformed_values[5].value == False
+
+    def attribute_from_function_call_node_ast_to_nimoy_expression_ast(self):
+        with given:
+            expression = """some_func_call().jimbob"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, node.body[0].value)
+            transformed_keys = transformed.keys
+            transformed_values = transformed.values
+        with expect:
+            transformed_keys[0].value == 'type'
+            transformed_keys[1].value == 'name'
+            transformed_keys[2].value == 'value'
+            transformed_keys[3].value == 'column'
+            transformed_keys[4].value == 'end_column'
+            transformed_keys[5].value == 'constant'
+            transformed_keys[6].value == 'next'
+
+            transformed_values[0].value == 'exp'
+            transformed_values[1].value == 'some_func_call()'
+            type(transformed_values[2]) == _ast.Call
+            transformed_values[3].value == 0
+            transformed_values[4].value == 15
+            transformed_values[5].value == False
+
+            attribute_keys = transformed_values[6].keys
+            attribute_keys[0].value == 'type'
+            attribute_keys[1].value == 'name'
+            attribute_keys[2].value == 'value'
+            attribute_keys[3].value == 'column'
+            attribute_keys[4].value == 'end_column'
+            attribute_keys[5].value == 'constant'
+
+            attribute_values = transformed_values[6].values
+            attribute_values[0].value == 'exp'
+            attribute_values[1].value == 'jimbob'
+            type(attribute_values[2]) == _ast.Attribute
+            attribute_values[3].value == 17
+            attribute_values[4].value == 22
+            attribute_values[5].value == False
+
+    def subscript_from_function_call_node_ast_to_nimoy_expression_ast(self):
+        with given:
+            expression = """some_func_call().jimbob[1]"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, node.body[0].value)
+            transformed_keys = transformed.keys
+            transformed_values = transformed.values
+        with expect:
+            transformed_keys[0].value == 'type'
+            transformed_keys[1].value == 'name'
+            transformed_keys[2].value == 'value'
+            transformed_keys[3].value == 'column'
+            transformed_keys[4].value == 'end_column'
+            transformed_keys[5].value == 'constant'
+            transformed_keys[6].value == 'next'
+
+            transformed_values[0].value == 'exp'
+            transformed_values[1].value == 'some_func_call()'
+            type(transformed_values[2]) == _ast.Call
+            transformed_values[3].value == 0
+            transformed_values[4].value == 15
+            transformed_values[5].value == False
+
+            attribute_keys = transformed_values[6].keys
+            attribute_keys[0].value == 'type'
+            attribute_keys[1].value == 'name'
+            attribute_keys[2].value == 'value'
+            attribute_keys[3].value == 'column'
+            attribute_keys[4].value == 'end_column'
+            attribute_keys[5].value == 'constant'
+
+            attribute_values = transformed_values[6].values
+            attribute_values[0].value == 'exp'
+            attribute_values[1].value == 'jimbob[1]'
+            type(attribute_values[2]) == _ast.Subscript
+            attribute_values[3].value == 17
+            attribute_values[4].value == 25
+            attribute_values[5].value == False
+
+    def chain_function_call_node_ast_to_nimoy_expression_ast(self):
+        with given:
+            expression = """some_func_call().jimbob()"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, node.body[0].value)
+            transformed_keys = transformed.keys
+            transformed_values = transformed.values
+        with expect:
+            transformed_keys[0].value == 'type'
+            transformed_keys[1].value == 'name'
+            transformed_keys[2].value == 'value'
+            transformed_keys[3].value == 'column'
+            transformed_keys[4].value == 'end_column'
+            transformed_keys[5].value == 'constant'
+            transformed_keys[6].value == 'next'
+
+            transformed_values[0].value == 'exp'
+            transformed_values[1].value == 'some_func_call()'
+            type(transformed_values[2]) == _ast.Call
+            transformed_values[3].value == 0
+            transformed_values[4].value == 15
+            transformed_values[5].value == False
+
+            attribute_keys = transformed_values[6].keys
+            attribute_keys[0].value == 'type'
+            attribute_keys[1].value == 'name'
+            attribute_keys[2].value == 'value'
+            attribute_keys[3].value == 'column'
+            attribute_keys[4].value == 'end_column'
+            attribute_keys[5].value == 'constant'
+
+            attribute_values = transformed_values[6].values
+            attribute_values[0].value == 'exp'
+            attribute_values[1].value == 'jimbob()'
+            type(attribute_values[2]) == _ast.Call
+            attribute_values[3].value == 17
+            attribute_values[4].value == 24
+            attribute_values[5].value == False
+
+    def multi_level_attribute_node_ast_to_nimoy_expression_ast(self):
+        with given:
+            expression = """some_att.another_att.yet_another_att.and_another"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, node.body[0].value)
+            transformed_values = transformed.values
+        with expect:
+            transformed_values[2].id == 'some_att'
+            transformed_values[6].values[2].attr == 'another_att'
+            transformed_values[6].values[6].values[2].attr == 'yet_another_att'
+            transformed_values[6].values[6].values[6].values[2].attr == 'and_another'
+
+    def subscript_node_ast_to_nimoy_expression_ast(self):
+        with given:
+            expression = """some_list[1]"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, node.body[0].value)
+            transformed_keys = transformed.keys
+            transformed_values = transformed.values
+        with expect:
+            transformed_keys[0].value == 'type'
+            transformed_keys[1].value == 'name'
+            transformed_keys[2].value == 'value'
+            transformed_keys[3].value == 'column'
+            transformed_keys[4].value == 'end_column'
+            transformed_keys[5].value == 'constant'
+
+            transformed_values[0].value == 'exp'
+            transformed_values[1].value == 'some_list[1]'
+            type(transformed_values[2]) == _ast.Subscript
+            transformed_values[3].value == 0
+            transformed_values[4].value == 11
+            transformed_values[5].value == False
+
+    def chained_subscript_attributes_node_ast_to_nimoy_expression_ast(self):
+        with given:
+            expression = """some_list[1].other_list[2]"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, node.body[0].value)
+            transformed_values = transformed.values
+        with expect:
+            transformed_values[1].value == 'some_list[1]'
+            type(transformed_values[2]) == _ast.Subscript
+            transformed_values[6].values[1].value == 'other_list[2]'
+            type(transformed_values[6].values[2]) == _ast.Subscript
+
+    def chained_subscript_node_ast_to_nimoy_expression_ast(self):
+        with given:
+            expression = """some_list[1][2][3]"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, node.body[0].value)
+            transformed_values = transformed.values
+        with expect:
+            transformed_values[0].value == 'exp'
+            transformed_values[1].value == 'some_list[1][2][3]'
+            type(transformed_values[2]) == _ast.Subscript
+            transformed_values[3].value == 0
+            transformed_values[4].value == 17
+            transformed_values[5].value == False
+
+    def chained_string_and_numeric_subscript_node_ast_to_nimoy_expression_ast(self):
+        with given:
+            expression = """some_obj.some_att['key'][0]"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, node.body[0].value)
+            transformed_values = transformed.values
+        with expect:
+            transformed_values[1].value == 'some_obj'
+            type(transformed_values[2]) == _ast.Name
+            att_values = transformed_values[6].values
+            att_values[1].value == """some_att['key'][0]"""
+
+    def chained_subscript_attribute_node_ast_to_nimoy_expression_ast(self):
+        with given:
+            expression = """some_obj.some_list[1][2][3]"""
+            node = ast.parse(expression, mode='exec')
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0, node.body[0].value)
+            transformed_values = transformed.values
+        with expect:
+            transformed_values[0].value == 'exp'
+            transformed_values[1].value == 'some_obj'
+            type(transformed_values[2]) == _ast.Name
+            transformed_values[3].value == 0
+            transformed_values[4].value == 7
+
+            subscript_values = transformed_values[6].values
+            subscript_values[1].value == 'some_list[1][2][3]'
+            type(subscript_values[2]) == _ast.Subscript
+            subscript_values[3].value == 9
+            subscript_values[4].value == 26
+
     def attribute_node_ast_to_nimoy_expression_ast(self):
         with given:
             name_expression = Name(id='bob', col_offset=0, end_col_offset=3)
             attribute_expression = Attribute(attr='mcbob', col_offset=4, end_col_offset=10, value=name_expression)
-            transformed_keys, transformed_values = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(
-                attribute_expression)
+            transformed = PowerAssertionTransformer().expression_node_ast_to_nimoy_expression_ast(0,
+                                                                                                  attribute_expression)
+            transformed_keys = transformed.keys
+            transformed_values = transformed.values
         with expect:
             transformed_keys[0].value == 'type'
             transformed_keys[1].value == 'name'

@@ -5,17 +5,18 @@ name = "pypi"
 
 [scripts]
 test = "python -m nimoy.main"
+test-with-power = "python -m nimoy.main --power-assertions true"
 
 [dev-packages]
 twine = "*"
 mkdocs = "*"
 pylint = "*"
 mkdocs-material = "*"
-astor = "*"
 
 [packages]
 pyhamcrest = "==2.0.2"
 urllib3 = "==1.26.5"
+astor = "0.8.1"
 
 [requires]
 python_version = "3.8"
