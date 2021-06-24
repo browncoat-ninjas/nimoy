@@ -40,7 +40,7 @@ jobs:
           command: pipenv install -d
       - run:
           name: Build docs
-          command: mkdocs build --verbose --clean --strict
+          command: pipenv run build-docs
       - persist_to_workspace:
           root: site
           paths:

@@ -6,6 +6,7 @@ name = "pypi"
 [scripts]
 test = "python -m nimoy.main"
 test-with-power = "python -m nimoy.main --power-assertions true"
+build-docs = "mkdocs build --verbose --clean --strict"
 
 [dev-packages]
 twine = "*"
