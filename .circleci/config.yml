@@ -17,9 +17,9 @@ workflows:
       - deploy-docs:
           requires:
             - build-docs
-#          filters:
-#            branches:
-#              only: master
+          filters:
+            branches:
+              only: master
 
 jobs:
   build-and-test:
