@@ -63,5 +63,5 @@ jobs:
             git config user.name "noamt"
       - run:
           name: Deploy docs to gh-pages branch
-          command: ll site
+          command: ls -l site
 #          command: gh-pages --dist site
