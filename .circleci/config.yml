@@ -6,11 +6,20 @@ orbs:
 workflows:
   build-and-test:
     jobs:
-      - build-and-test
+      - build-and-test:
+          filters:
+            branches:
+              only: develop
+
+  deploy-docs:
+    jobs:
       - build-docs
       - deploy-docs:
           requires:
             - build-docs
+#          filters:
+#            branches:
+#              only: master
 
 jobs:
   build-and-test:
@@ -62,6 +71,9 @@ jobs:
             npm install -g -s -y --no-progress --prefix=$HOME/.local gh-pages
             git config user.email "noam@10ne.org"
             git config user.name "noamt"
+      - add_ssh_keys:
+          fingerprints:
+            - "5c:3f:e2:c1:bf:98:30:ae:9c:58:0e:3c:eb:76:a6:9d"
       - run:
           name: Deploy docs to gh-pages branch
           command: gh-pages --dist site
