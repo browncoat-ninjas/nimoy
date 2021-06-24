@@ -44,4 +44,4 @@ jobs:
       - persist_to_workspace:
           root: site
           paths:
-            - *
+            - .
