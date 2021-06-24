@@ -14,8 +14,6 @@ workflows:
 
 jobs:
   build-and-test:
-    branches:
-      ignore: gh-pages
     docker:
       - image: cimg/python:3.8
     steps:
