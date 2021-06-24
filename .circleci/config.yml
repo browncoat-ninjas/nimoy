@@ -8,10 +8,14 @@ workflows:
     jobs:
       - build-and-test
       - build-docs
-      - deploy-docs
+      - deploy-docs:
+          requires:
+            - build-docs
 
 jobs:
   build-and-test:
+    branches:
+      ignore: gh-pages
     docker:
       - image: cimg/python:3.8
     steps:
@@ -56,7 +60,7 @@ jobs:
       - run:
           name: Install and configure dependencies
           command: |
-            npm install -g --silent gh-pages
+            npm install -g -s -y --no-progress gh-pages
             git config user.email "noam@10ne.org"
             git config user.name "noamt"
       - run:
