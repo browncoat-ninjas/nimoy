@@ -8,6 +8,7 @@ workflows:
     jobs:
       - build-and-test
       - build-docs
+      - deploy-docs
 
 jobs:
   build-and-test:
@@ -45,3 +46,20 @@ jobs:
           root: site
           paths:
             - .
+  deploy-docs:
+    docker:
+      - image: cimg/node:current
+    steps:
+      - checkout
+      - attach_workspace:
+          at: site
+      - run:
+          name: Install and configure dependencies
+          command: |
+            npm install -g --silent gh-pages
+            git config user.email "noam@10ne.org"
+            git config user.name "noamt"
+      - run:
+          name: Deploy docs to gh-pages branch
+          command: ll site
+#          command: gh-pages --dist site
