@@ -58,7 +58,7 @@ jobs:
       - run:
           name: Install and configure dependencies
           command: |
-            npm install -g -s -y --no-progress --no-package-lock --prefix=$HOME/.local gh-pages
+            npm install -g -s -y --no-progress --prefix=$HOME/.local gh-pages
             git config user.email "noam@10ne.org"
             git config user.name "noamt"
       - run:
