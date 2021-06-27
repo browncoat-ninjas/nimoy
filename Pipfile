@@ -5,6 +5,10 @@ name = "pypi"
 
 [scripts]
 test = "python -m nimoy.main"
+test-with-power = "python -m nimoy.main --power-assertions true"
+build-docs = "mkdocs build --verbose --clean --strict"
+lint = "pylint ./nimoy"
+lint-ci = "pylint -E ./nimoy"
 
 [dev-packages]
 twine = "*"
@@ -13,8 +17,9 @@ pylint = "*"
 mkdocs-material = "*"
 
 [packages]
-pyhamcrest = "2.0.2"
-urllib3 = "1.26.2"
+pyhamcrest = "==2.0.2"
+urllib3 = "==1.26.5"
+astor = "0.8.1"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"

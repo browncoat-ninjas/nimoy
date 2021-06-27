@@ -1,0 +1,84 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@1.2
+
+workflows:
+  build-and-test:
+    jobs:
+      - build-and-test:
+          filters:
+            branches:
+              ignore:
+                - master
+                - gh-pages
+
+  deploy-docs:
+    jobs:
+      - build-docs
+      - deploy-docs:
+          requires:
+            - build-docs
+          filters:
+            branches:
+              only: master
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - run:
+           name: Install Pipenv
+           command: pip install -U setuptools pip pipenv
+      - run:
+           name: Install dependencies
+           command: pipenv install -d
+      - run:
+          name: Run lint
+          command: pipenv run lint-ci
+      - run:
+          name: Run tests
+          command: pipenv run test
+      - run:
+          name: Run tests with power assertions
+          command: pipenv run test-with-power
+  build-docs:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - run:
+          name: Install Pipenv
+          command: pip install -U setuptools pip pipenv
+      - run:
+          name: Install dependencies
+          command: pipenv install -d
+      - run:
+          name: Build docs
+          command: pipenv run build-docs
+      - persist_to_workspace:
+          root: site
+          paths:
+            - .
+  deploy-docs:
+    docker:
+      - image: cimg/node:current
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "5c:3f:e2:c1:bf:98:30:ae:9c:58:0e:3c:eb:76:a6:9d"
+      - checkout
+      - attach_workspace:
+          at: site
+      - run:
+          name: Install and configure dependencies
+          command: |
+            npm init -y
+            npm install -g -s -y --no-progress --prefix=$HOME/.local gh-pages
+            git config user.email "noam@10ne.org"
+            git config user.name "noamt"
+      - run:
+          name: Deploy docs to gh-pages branch
+          command: gh-pages --dist site

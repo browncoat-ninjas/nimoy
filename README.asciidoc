@@ -3,7 +3,30 @@
 A testing and specification framework for Python 3, heavily inspired by the amazing http://spockframework.org/[Spock Framework].
 
 image:https://badge.fury.io/py/nimoy-framework.svg["PyPI version", link="https://badge.fury.io/py/nimoy-framework"]
-image:https://travis-ci.org/browncoat-ninjas/nimoy.svg?branch=master["Build Status", link="https://travis-ci.org/browncoat-ninjas/nimoy"]
+image:https://circleci.com/gh/browncoat-ninjas/nimoy/tree/develop.svg?style=svg["CircleCI", link="https://circleci.com/gh/browncoat-ninjas/nimoy/tree/develop"]
+
+== Better Python Testing
+
+Powerful Python DDT (Domain Driven Testing) made easy with Nimoy's DSL:
+
+```python
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    def my_feature_method(self):
+        with given:
+            a = value_of_a
+            b = value_of_b
+
+        with expect:
+            (a * b) == expected_value
+
+        with where:
+            value_of_a | value_of_b | expected_value
+            1          | 10         | 10
+            2          | 20         | 40
+```
 
 == Installation
 
@@ -21,13 +44,14 @@ The aim of this project is to port Spock to Python while maintaining the origina
 
 == Features
 
+* Domain Driven Testing
 * Based on `unittest`, so minimal dependencies are required and specifications are recognized by IDEs and report analyzers.
 * Reduction of boilerplate code.
 * Write detailed specifications with clear distinction.
 * Auto discovery of specifications.
 * Write data-driven specifications.
 * Pretty mock behavior assertion.
-* See fancy detailed assertion failure reports.
+* See fancy detailed assertion failure reports including power assertions.
 
 == Learn More
 

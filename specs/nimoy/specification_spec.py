@@ -25,6 +25,12 @@ class FeatureBlockRuleEnforcerSpec(Specification):
 
 
 class InternalSpecificationMethodsSpec(Specification):
+
+    # By default the unittest mock fails when a mocked method begins with the string "assert" or "assret"
+    @staticmethod
+    def _mark_mock_as_unsafe(m):
+        m.return_value._mock_unsafe = True
+
     def feature_block_context_is_returned(self):
         with given:
             class SomeSpec(Specification):
@@ -51,10 +57,24 @@ class InternalSpecificationMethodsSpec(Specification):
         with then:
             1 * compare_mock.return_value.compare('a', 'b', 'some_name')
 
+    @mock.patch('nimoy.specification.PowerAssertions')
+    def internal_power_assertion_is_called(self, power_assert_mock):
+        with given:
+            InternalSpecificationMethodsSpec._mark_mock_as_unsafe(power_assert_mock)
+
+            class SomeSpec(Specification):
+                pass
+
+        with when:
+            SomeSpec()._power_assert({'a': 'b'})
+
+        with then:
+            1 * power_assert_mock.return_value.assert_and_raise({'a': 'b'})
+
     @mock.patch('nimoy.specification.MockAssertions')
     def internal_mock_assertion_is_performed(self, mock_assertions_mock):
         with given:
-            mock_assertions_mock.return_value._mock_unsafe = True
+            InternalSpecificationMethodsSpec._mark_mock_as_unsafe(mock_assertions_mock)
 
             class SomeSpec(Specification):
                 pass
@@ -71,7 +91,7 @@ class InternalSpecificationMethodsSpec(Specification):
     @mock.patch('nimoy.specification.ExceptionAssertions')
     def internal_exception_assertion_is_performed(self, exception_assertions_mock):
         with given:
-            exception_assertions_mock.return_value._mock_unsafe = True
+            InternalSpecificationMethodsSpec._mark_mock_as_unsafe(exception_assertions_mock)
 
             class SomeSpec(Specification):
                 pass

@@ -1,10 +1,11 @@
-import _ast
 import ast
 import copy
+import _ast
 
-from nimoy.ast_tools import ast_proxy
+from nimoy.runner.metadata import RunnerContext
+from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer, MockAssertionTransformer, \
-    ThrownExpressionTransformer, MockBehaviorExpressionTransformer
+    ThrownExpressionTransformer, MockBehaviorExpressionTransformer, PowerAssertionTransformer
 from nimoy.runner.exceptions import InvalidFeatureBlockException
 
 SETUP = 'setup'
@@ -42,7 +43,7 @@ class WhereBlockFunctions:
                     targets=[
                         _ast.Subscript(
                             value=_ast.Name(id='injectable_values', ctx=_ast.Load()),
-                            slice=_ast.Index(value=ast_proxy.ast_str(s=variable_name)),
+                            slice=ast.Str(s=variable_name),
                             ctx=_ast.Store()
                         )
                     ],
@@ -63,7 +64,7 @@ class WhereBlockFunctions:
                     targets=[
                         _ast.Subscript(
                             value=_ast.Name(id='injectable_values', ctx=_ast.Load()),
-                            slice=_ast.Index(value=ast_proxy.ast_str(s=variable_name)),
+                            slice=ast.Str(s=variable_name),
                             ctx=_ast.Store()
                         )
                     ],
@@ -118,7 +119,7 @@ class FeatureBlockRuleEnforcer:
 
         if block_type in [SETUP, GIVEN]:
             if existing_blocks:
-                if any([(existing_block in [SETUP, GIVEN]) for existing_block in existing_blocks]):
+                if any((existing_block in [SETUP, GIVEN]) for existing_block in existing_blocks):
                     raise InvalidFeatureBlockException(self.spec_metadata, self.feature_name, self.block_ast_node,
                                                        'Each feature may only have a single setup/given block')
 
@@ -153,8 +154,9 @@ class FeatureBlockRuleEnforcer:
 
 
 class FeatureBlockTransformer(ast.NodeTransformer):
-    def __init__(self, spec_metadata, feature_name) -> None:
+    def __init__(self, runner_context: RunnerContext, spec_metadata: SpecMetadata, feature_name: str) -> None:
         super().__init__()
+        self.runner_context = runner_context
         self.spec_metadata = spec_metadata
         self.feature_name = feature_name
 
@@ -172,7 +174,10 @@ class FeatureBlockTransformer(ast.NodeTransformer):
                     MockBehaviorExpressionTransformer().visit(with_node)
 
                 if block_type in [THEN, EXPECT]:
-                    ComparisonExpressionTransformer().visit(with_node)
+                    if self.runner_context.use_power_assertions:
+                        PowerAssertionTransformer().visit(with_node)
+                    else:
+                        ComparisonExpressionTransformer().visit(with_node)
 
                 if block_type == THEN:
                     MockAssertionTransformer().visit(with_node)
@@ -202,11 +207,16 @@ class FeatureBlockTransformer(ast.NodeTransformer):
     def _replace_with_block_context(with_node, block_type):
         with_node.items[0].context_expr = _ast.Call(
             func=_ast.Attribute(value=_ast.Name(id='self', ctx=_ast.Load()), attr='_feature_block_context',
-                                ctx=_ast.Load()), args=[ast_proxy.ast_str(s=block_type)], keywords=[])
+                                ctx=_ast.Load()), args=[ast.Str(s=block_type)], keywords=[])
 
     def _replace_where_block_with_function(self, with_node):
         return _ast.FunctionDef(name=self.feature_name + '_where',
-                                args=ast_proxy.ast_args([_ast.arg(arg='self'), _ast.arg(arg='injectable_values')]),
+                                args=_ast.arguments(
+                                    args=[_ast.arg(arg='self'), _ast.arg(arg='injectable_values')],
+                                    posonlyargs=[],
+                                    kwonlyargs=[],
+                                    kw_defaults=[],
+                                    defaults=[]),
                                 body=copy.deepcopy(with_node.body),
                                 decorator_list=[],
                                 returns=None)

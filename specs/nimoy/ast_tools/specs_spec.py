@@ -2,6 +2,7 @@ import ast
 from unittest import mock
 
 from nimoy.ast_tools.specs import SpecTransformer
+from nimoy.runner.metadata import RunnerContext
 from nimoy.runner.spec_finder import Location
 from nimoy.specification import Specification
 
@@ -27,7 +28,7 @@ class Bobson:
         found_metadata = []
 
         with when:
-            SpecTransformer(Location('some_spec.py'), found_metadata).visit(node)
+            SpecTransformer(RunnerContext(), Location('some_spec.py'), found_metadata).visit(node)
 
         with then:
             len(found_metadata) == 2
@@ -53,7 +54,7 @@ class JonesSpec(Specification):
         found_metadata = []
 
         with when:
-            SpecTransformer(Location('some_spec.py::JonesSpec'), found_metadata).visit(node)
+            SpecTransformer(RunnerContext(), Location('some_spec.py::JonesSpec'), found_metadata).visit(node)
 
         with then:
             len(found_metadata) == 1

@@ -32,7 +32,7 @@ class SpecFinder:
         return os.path.join(self.working_directory, suggested_location)
 
     def _find_specs_in_directory(self, directory):
-        for root, dir_names, file_names in os.walk(directory):
+        for root, _, file_names in os.walk(directory):
             for filename in fnmatch.filter(file_names, '*spec.py'):
                 self.spec_locations.append(Location(os.path.join(root, filename)))
 
