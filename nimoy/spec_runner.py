@@ -14,7 +14,7 @@ class SpecRunner:
     def run(self, execution_framework):
         parser = argparse.ArgumentParser(prog='nimoy', description='Run a suite of Nimoy specs.')
         parser.add_argument('--power-assertions', metavar='P', type=bool, nargs=1, default=False,
-                            help="Should Nimoy evaluate comparison expressions using power assertions (alpha)")
+                            help="Should Nimoy evaluate comparison expressions using power assertions (beta)")
         parser.add_argument('specs', metavar='S', type=str, nargs='*',
                             help="""A path to a spec file to execute or a directory to scan for spec files.
                                     When naming a file it is possible to select which spec or feature to run. some_spec.py[::SpecName[::feature_name]]

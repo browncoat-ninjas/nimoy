@@ -2,6 +2,46 @@
 
 ## Pretty Failure Messages
 
+### Power Assertions (Beta):
+
+Power assertions is in beta! This feature can be turned on using the `--power-assertions` switch.
+
+Taking inspiration from [Groovy](http://docs.groovy-lang.org/next/html/documentation/core-testing-guide.html#_power_assertions), power assertions take the failed assertion statement and break it down so that you can better understand the problem.
+
+```python
+from nimoy.specification import Specification
+
+class MySpec(Specification):
+    
+    def use_power_assertions(self):
+        with setup:
+            class SomeClass:
+                def __init__(self):
+                    self.val = {'d': 'e'}
+                    
+                def __str__(self):
+                    return str(self.val)
+
+            sc = SomeClass()
+        with expect:
+            sc.val['d'] == 'f'
+```
+
+Running this spec using `nimoy --power-assertions true` produces:
+
+```
+======================================================================
+FAIL: use_power_assertions (builtins.MySpec)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  [redacted]
+AssertionError: Assertion failed:
+sc.val['d'] == f
+|  |        |
+|  e        False
+{'d': 'e'}
+```
+
 ### String Assertions
 
 ```python
