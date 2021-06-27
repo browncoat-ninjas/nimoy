@@ -270,6 +270,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#power-assertions-beta" class="md-nav__link">
+    Power Assertions (Beta):
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#string-assertions" class="md-nav__link">
     String Assertions
   </a>
@@ -414,6 +421,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#power-assertions-beta" class="md-nav__link">
+    Power Assertions (Beta):
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#string-assertions" class="md-nav__link">
     String Assertions
   </a>
@@ -520,6 +534,38 @@
                 
                 <h1 id="examples">Examples</h1>
 <h2 id="pretty-failure-messages">Pretty Failure Messages</h2>
+<h3 id="power-assertions-beta">Power Assertions (Beta):</h3>
+<p>Power assertions is in beta! This feature can be turned on using the <code>--power-assertions</code> switch.</p>
+<p>Taking inspiration from <a href="http://docs.groovy-lang.org/next/html/documentation/core-testing-guide.html#_power_assertions">Groovy</a>, power assertions take the failed assertion statement and break it down so that you can better understand the problem.</p>
+<pre><code class="language-python">from nimoy.specification import Specification
+
+class MySpec(Specification):
+
+    def use_power_assertions(self):
+        with setup:
+            class SomeClass:
+                def __init__(self):
+                    self.val = {'d': 'e'}
+
+                def __str__(self):
+                    return str(self.val)
+
+            sc = SomeClass()
+        with expect:
+            sc.val['d'] == 'f'
+</code></pre>
+<p>Running this spec using <code>nimoy --power-assertions true</code> produces:</p>
+<pre><code>======================================================================
+FAIL: use_power_assertions (builtins.MySpec)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  [redacted]
+AssertionError: Assertion failed:
+sc.val['d'] == f
+|  |        |
+|  e        False
+{'d': 'e'}
+</code></pre>
 <h3 id="string-assertions">String Assertions</h3>
 <pre><code class="language-python">from nimoy.specification import Specification
 

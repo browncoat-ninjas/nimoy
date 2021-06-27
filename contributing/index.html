@@ -367,8 +367,8 @@ searching for a similar report in the project's open GitHub issues.</p>
 <li>Fork and clone the repository</li>
 <li>Use <code>pipenv</code> to download the dependencies using: <code>pipenv install -d</code></li>
 <li>Apply your changes, including test cases that prove them</li>
-<li>Run <code>pylint</code> to make sure that the quality of the code hasn't deteriorated: <code>find nimoy -name "*.py" | xargs pylint</code></li>
-<li>Run all tests and make sure none have been broken: <code>pipenv run test</code></li>
+<li>Run <code>pylint</code> to make sure that the quality of the code hasn't deteriorated: <code>pipenv run lint</code></li>
+<li>Run all tests and make sure none have been broken: <code>pipenv run test</code> &amp; <code>pipenv run test-with-power</code></li>
 <li>Submit the changes using a pull request. Make sure you provide as much detail as possible</li>
 </ul>
                 

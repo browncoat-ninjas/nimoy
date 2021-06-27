@@ -2,22 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://browncoat-ninjas.github.io/nimoy/</loc>
-         <lastmod>2021-06-24</lastmod>
+         <lastmod>2021-06-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://browncoat-ninjas.github.io/nimoy/contributing/</loc>
-         <lastmod>2021-06-24</lastmod>
+         <lastmod>2021-06-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://browncoat-ninjas.github.io/nimoy/examples/</loc>
-         <lastmod>2021-06-24</lastmod>
+         <lastmod>2021-06-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://browncoat-ninjas.github.io/nimoy/user-guide/</loc>
-         <lastmod>2021-06-24</lastmod>
+         <lastmod>2021-06-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
