@@ -1,7 +1,6 @@
 import _ast
 import ast
 
-from nimoy.ast_tools import ast_proxy
 from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.ast_tools.feature_blocks import FeatureBlockRuleEnforcer
 from nimoy.ast_tools.feature_blocks import FeatureBlockTransformer
@@ -38,7 +37,7 @@ class FeatureRegistrationTransformer(ast.NodeTransformer):
                 if feature_variable in existing_arg_names:
                     continue
                 feature_node.args.args.append(_ast.arg(arg=feature_variable))
-                feature_node.args.defaults.append(ast_proxy.ast_name_constant(value=None))
+                feature_node.args.defaults.append(ast.NameConstant(value=None))
 
         if self._feature_has_a_where_function(feature_name):
             self._remove_where_function_from_node(feature_name, feature_node)

@@ -3,7 +3,6 @@ import ast
 import copy
 
 from nimoy.runner.metadata import RunnerContext
-from nimoy.ast_tools import ast_proxy
 from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.ast_tools.expression_transformer import ComparisonExpressionTransformer, MockAssertionTransformer, \
     ThrownExpressionTransformer, MockBehaviorExpressionTransformer, PowerAssertionTransformer
@@ -44,7 +43,7 @@ class WhereBlockFunctions:
                     targets=[
                         _ast.Subscript(
                             value=_ast.Name(id='injectable_values', ctx=_ast.Load()),
-                            slice=_ast.Index(value=ast_proxy.ast_str(s=variable_name)),
+                            slice=ast.Str(s=variable_name),
                             ctx=_ast.Store()
                         )
                     ],
@@ -65,7 +64,7 @@ class WhereBlockFunctions:
                     targets=[
                         _ast.Subscript(
                             value=_ast.Name(id='injectable_values', ctx=_ast.Load()),
-                            slice=_ast.Index(value=ast_proxy.ast_str(s=variable_name)),
+                            slice=ast.Str(s=variable_name),
                             ctx=_ast.Store()
                         )
                     ],
@@ -208,11 +207,16 @@ class FeatureBlockTransformer(ast.NodeTransformer):
     def _replace_with_block_context(with_node, block_type):
         with_node.items[0].context_expr = _ast.Call(
             func=_ast.Attribute(value=_ast.Name(id='self', ctx=_ast.Load()), attr='_feature_block_context',
-                                ctx=_ast.Load()), args=[ast_proxy.ast_str(s=block_type)], keywords=[])
+                                ctx=_ast.Load()), args=[ast.Str(s=block_type)], keywords=[])
 
     def _replace_where_block_with_function(self, with_node):
         return _ast.FunctionDef(name=self.feature_name + '_where',
-                                args=ast_proxy.ast_args([_ast.arg(arg='self'), _ast.arg(arg='injectable_values')]),
+                                args=_ast.arguments(
+                                    args=[_ast.arg(arg='self'), _ast.arg(arg='injectable_values')],
+                                    posonlyargs=[],
+                                    kwonlyargs=[],
+                                    kw_defaults=[],
+                                    defaults=[]),
                                 body=copy.deepcopy(with_node.body),
                                 decorator_list=[],
                                 returns=None)
