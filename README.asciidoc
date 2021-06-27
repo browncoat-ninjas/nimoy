@@ -7,6 +7,8 @@ image:https://circleci.com/gh/browncoat-ninjas/nimoy/tree/develop.svg?style=svg[
 
 == Better Python Testing
 
+Powerful Python DDT (Domain Driven Testing) made easy with Nimoy's DSL:
+
 ```python
 from nimoy.specification import Specification
 
