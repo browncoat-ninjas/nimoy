@@ -9,7 +9,9 @@ workflows:
       - build-and-test:
           filters:
             branches:
-              only: develop
+              ignore:
+                - master
+                - gh-pages
 
   deploy-docs:
     jobs:
