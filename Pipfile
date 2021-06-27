@@ -7,6 +7,8 @@ name = "pypi"
 test = "python -m nimoy.main"
 test-with-power = "python -m nimoy.main --power-assertions true"
 build-docs = "mkdocs build --verbose --clean --strict"
+lint = "pylint ./nimoy"
+lint-ci = "pylint -E ./nimoy"
 
 [dev-packages]
 twine = "*"

@@ -34,7 +34,10 @@ jobs:
            command: pip install -U setuptools pip pipenv
       - run:
            name: Install dependencies
-           command: pipenv install
+           command: pipenv install -d
+      - run:
+          name: Run lint
+          command: pipenv run lint-ci
       - run:
           name: Run tests
           command: pipenv run test

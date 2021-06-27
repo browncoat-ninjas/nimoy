@@ -17,6 +17,6 @@ To contribute new features or bug fixes:
 * Fork and clone the repository
 * Use `pipenv` to download the dependencies using: `pipenv install -d`
 * Apply your changes, including test cases that prove them
-* Run `pylint` to make sure that the quality of the code hasn't deteriorated: `find nimoy -name "*.py" | xargs pylint`
-* Run all tests and make sure none have been broken: `pipenv run test`
+* Run `pylint` to make sure that the quality of the code hasn't deteriorated: `pipenv run lint`
+* Run all tests and make sure none have been broken: `pipenv run test` & `pipenv run test-with-power`
 * Submit the changes using a pull request. Make sure you provide as much detail as possible
