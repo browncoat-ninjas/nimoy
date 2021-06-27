@@ -1,7 +1,6 @@
-import _ast
 import ast
+import _ast
 from _ast import Dict, Constant
-from typing import Tuple
 
 import astor
 
@@ -107,10 +106,10 @@ class PowerAssertionTransformer(ast.NodeTransformer):
     @staticmethod
     def _append_call_as_expression_values(root_expression_offset: int, ast_object: _ast.Call, d: Dict):
 
-        if type(ast_object.func) is _ast.Name:
+        if isinstance(ast_object.func, _ast.Name):
             name = astor.to_source(ast_object).strip()
             column = ast_object.col_offset - root_expression_offset
-        elif type(ast_object.func) is _ast.Attribute:
+        elif isinstance(ast_object.func, _ast.Attribute):
             name = astor.to_source(ast_object).strip()[
                    ast_object.func.value.end_col_offset - ast_object.func.value.col_offset + 1:]
             column = ast_object.func.value.end_col_offset - root_expression_offset + 1
@@ -126,10 +125,10 @@ class PowerAssertionTransformer(ast.NodeTransformer):
     def _append_subscript_as_expression_values(root_expression_offset: int, root_subscript: _ast.Subscript,
                                                subscript_target, d: Dict):
 
-        if type(subscript_target) is _ast.Name:
+        if isinstance(subscript_target, _ast.Name):
             name = astor.to_source(root_subscript).strip()
             column = subscript_target.col_offset - root_expression_offset
-        elif type(subscript_target) is _ast.Attribute:
+        elif isinstance(subscript_target, _ast.Attribute):
             name = astor.to_source(root_subscript).strip()[
                    subscript_target.value.end_col_offset - subscript_target.value.col_offset + 1:]
             column = subscript_target.value.end_col_offset - root_expression_offset + 1
@@ -159,7 +158,7 @@ class PowerAssertionTransformer(ast.NodeTransformer):
 
         while ast_object is not None:
             d = Dict(keys=[], values=[])
-            if type(ast_object) is _ast.Name:
+            if isinstance(ast_object, _ast.Name):
                 PowerAssertionTransformer._append_expression_keys(d)
                 PowerAssertionTransformer._append_name_as_expression_values(root_expression_offset, ast_object, d)
                 if dict_to_return is not None:
@@ -167,7 +166,7 @@ class PowerAssertionTransformer(ast.NodeTransformer):
                     d.values.append(dict_to_return)
                 dict_to_return = d
                 ast_object = None
-            elif type(ast_object) is _ast.Constant:
+            elif isinstance(ast_object, _ast.Constant):
                 PowerAssertionTransformer._append_expression_keys(d)
                 PowerAssertionTransformer._append_constant_as_expression_values(root_expression_offset, ast_object, d)
                 if dict_to_return is not None:
@@ -175,7 +174,7 @@ class PowerAssertionTransformer(ast.NodeTransformer):
                     d.values.append(dict_to_return)
                 dict_to_return = d
                 ast_object = None
-            elif type(ast_object) is _ast.Attribute:
+            elif isinstance(ast_object, _ast.Attribute):
                 PowerAssertionTransformer._append_expression_keys(d)
                 PowerAssertionTransformer._append_attribute_as_expression_values(root_expression_offset, ast_object, d)
                 if dict_to_return is not None:
@@ -183,22 +182,22 @@ class PowerAssertionTransformer(ast.NodeTransformer):
                     d.values.append(dict_to_return)
                 dict_to_return = d
                 ast_object = ast_object.value
-            elif type(ast_object) is _ast.Call:
+            elif isinstance(ast_object, _ast.Call):
                 PowerAssertionTransformer._append_expression_keys(d)
                 PowerAssertionTransformer._append_call_as_expression_values(root_expression_offset, ast_object, d)
                 if dict_to_return is not None:
                     d.keys.append(Constant(value='next', kind=None))
                     d.values.append(dict_to_return)
                 dict_to_return = d
-                if type(ast_object.func) is _ast.Attribute:
+                if isinstance(ast_object.func, _ast.Attribute):
                     ast_object = ast_object.func.value
                 else:
                     ast_object = None
-            elif type(ast_object) is _ast.Subscript:
+            elif isinstance(ast_object, _ast.Subscript):
                 PowerAssertionTransformer._append_expression_keys(d)
 
                 target = ast_object.value
-                while type(target) is _ast.Subscript:
+                while isinstance(target, _ast.Subscript):
                     target = target.value
 
                 PowerAssertionTransformer._append_subscript_as_expression_values(root_expression_offset, ast_object,
@@ -207,7 +206,7 @@ class PowerAssertionTransformer(ast.NodeTransformer):
                     d.keys.append(Constant(value='next', kind=None))
                     d.values.append(dict_to_return)
                 dict_to_return = d
-                if type(target) is _ast.Attribute:
+                if isinstance(target, _ast.Attribute):
                     ast_object = target.value
                 else:
                     ast_object = None
@@ -236,7 +235,7 @@ class PowerAssertionTransformer(ast.NodeTransformer):
 
             next_found_in_iteration = False
             for i, key in enumerate(rightmost_dict.keys):
-                if type(key) != Constant:
+                if not isinstance(key, Constant):
                     continue
                 if key.value == 'next':
                     next_found_in_iteration = True
@@ -260,7 +259,7 @@ class PowerAssertionTransformer(ast.NodeTransformer):
 
         op_dict.keys.append(Constant(value='op', kind=None))
         op = None
-        if type(ast_object) is _ast.Eq:
+        if isinstance(ast_object, _ast.Eq):
             op = '=='
         op_dict.values.append(Constant(value=op, kind=None))
 
@@ -355,8 +354,7 @@ class ThrownExpressionTransformer(ast.NodeTransformer):
 class MockBehaviorExpressionTransformer(ast.NodeTransformer):
     def visit_Expr(self, expression_node):
         value = expression_node.value
-        if not isinstance(value, _ast.BinOp) or not (
-                isinstance(value.op, _ast.RShift) or isinstance(value.op, _ast.LShift)):
+        if not isinstance(value, _ast.BinOp) or not isinstance(value.op, (_ast.RShift, _ast.LShift)):
             return expression_node
 
         mock_attribute = 'return_value'

@@ -1,5 +1,5 @@
-import _ast
 import ast
+import _ast
 
 from nimoy.ast_tools.ast_metadata import SpecMetadata
 from nimoy.ast_tools.feature_blocks import FeatureBlockRuleEnforcer

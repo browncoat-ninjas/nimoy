@@ -18,3 +18,5 @@ class FeatureBlock:
             last_thrown_exception = self.thrown_exceptions.pop()
             if last_thrown_exception:
                 raise last_thrown_exception[0](last_thrown_exception[1]).with_traceback(last_thrown_exception[2])
+
+        return None
