@@ -1,6 +1,6 @@
-import _ast
 import ast
 import copy
+import _ast
 
 from nimoy.runner.metadata import RunnerContext
 from nimoy.ast_tools.ast_metadata import SpecMetadata
@@ -119,7 +119,7 @@ class FeatureBlockRuleEnforcer:
 
         if block_type in [SETUP, GIVEN]:
             if existing_blocks:
-                if any([(existing_block in [SETUP, GIVEN]) for existing_block in existing_blocks]):
+                if any((existing_block in [SETUP, GIVEN]) for existing_block in existing_blocks):
                     raise InvalidFeatureBlockException(self.spec_metadata, self.feature_name, self.block_ast_node,
                                                        'Each feature may only have a single setup/given block')
 

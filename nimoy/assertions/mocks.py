@@ -14,7 +14,7 @@ class MockAssertions:
                     mocked_method.call_count)) from None
 
         for value, expected_value in zip(mocked_method.call_args[0], args):
-            if expected_value != '__nimoy_argument_wildcard' and expected_value != value:
+            if expected_value not in ('__nimoy_argument_wildcard', value):
                 raise AssertionError(
                     method + " expected argument " + str(expected_value) + " but was invoked with " + str(
                         value)) from None
